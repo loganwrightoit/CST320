@@ -1,2 +1,2 @@
 # CST320
-Compilor Methods
+Compiler Methods

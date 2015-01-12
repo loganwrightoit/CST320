@@ -50,6 +50,7 @@ class Tokenizer
             Symbol,
             Operator,
             Boolean,
+            //Float, <-- Add state machine for this maybe
             Invalid
         };
 

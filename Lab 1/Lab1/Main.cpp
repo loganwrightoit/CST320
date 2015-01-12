@@ -1,32 +1,18 @@
 /***********************************************************
 * Author:                   Logan Wright
-* Date Created:             12/01/2014
-* Last Modification Date:   12/XX/2014
-* Lab Number:               CST 229 Lab 2
+* Date Created:             01/09/2015
+* Last Modification Date:   01/11/2015
+* Lab Number:               CST 320 Lab 1
 * Filename:                 Main.cpp
 *
 * Overview:
-*   This program is an extension to Lab 1's state machine.
-*   It tokenizes a text file containing programming
-*   language code (C++ in this case), and identifies each
-*   token as a symbol, operator, keyword, identifier, etc.
-*   A token may not match any expected type, in which case
-*   it will be marked as invalid.
+*   Description.
 *
 * Input:
-*   The user must provide a text file name containing
-*   the program code, such as: code1.txt
+*   Stuff.
 *
 * Output:
-*   The program will analyze the file and display all
-*   tokens found with a description.
-*
-*       Example:    Token               Token Type
-*                   for                 Keyword
-*                   while               Keyword
-*                   _test               Identifier
-*                   @                   Invalid
-*                   12                  Integer
+*   Stuff.
 ************************************************************/
 
 #include <iostream>
@@ -36,6 +22,7 @@
 #include <fstream>
 #include "Tokenizer.h"
 #include "StateMachine.h"
+#include "SymbolTable.h"
 
 using namespace std;
 
@@ -45,7 +32,58 @@ ifstream file;
 // Stores token and type
 vector<std::pair<string, Tokenizer::TokenType>> tokens;
 
+// Stores symbols
+SymbolTable symbolTable;
+
 int main(int argc, char* argv[])
+{
+    // Tokenize string
+    // beginTokenizer(argc, argv);
+
+    cout << "Beginning symbol table test.\n\n";
+
+    // Add symbols to table
+    cout << "- Adding symbols to table.\n";
+    symbolTable.add(Symbol("isReady", Symbol::Bool, Symbol::VariableName, "true"));
+    symbolTable.add(Symbol("foo", Symbol::Double, Symbol::FunctionName, ""));
+
+    cout << "Table size: " << symbolTable.size() << endl;
+
+    for (int idx = 0; idx < 3; ++idx)
+    {
+        std::string name;
+
+        switch (idx)
+        {
+        case 0:
+            name = "isReady";
+            break;
+        case 1:
+            name = "someVariable";
+            break;
+        case 2:
+            name = "foo";
+            break;
+        }
+
+        cout << "- Attempting to find symbol: " << name << endl;
+        Symbol* symbol = symbolTable.find(name);
+        if (symbol != nullptr)
+        {
+            cout << "- Found symbol in table, attempting to remove.\n";
+            symbolTable.remove(name);
+            cout << "- Symbol removed, new table size: " << symbolTable.size() << endl;
+        }
+        else
+        {
+            cout << "ERROR: Could not find symbol in table.\n";
+        }
+    }
+
+    return 0;
+}
+
+int beginTokenizer(int argc, char* argv[])
 {
     string fileName;
     switch (argc)
@@ -88,7 +126,7 @@ int main(int argc, char* argv[])
             {
                 iter->second = stateMachine.GetTokenType(iter->first);
             }
-            
+
             // Store token and type pair
             tokens.push_back(*iter);
             ++iter;

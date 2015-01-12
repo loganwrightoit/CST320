@@ -14,7 +14,7 @@
     <ProjectGuid>{6222ED46-3820-45D9-87E1-4DE13497CC9B}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>Lab1</RootNamespace>
-    <ProjectName>Lab2</ProjectName>
+    <ProjectName>Lab 1</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -79,10 +79,14 @@
   <ItemGroup>
     <ClCompile Include="StateMachine.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="Symbol.cpp" />
+    <ClCompile Include="SymbolTable.cpp" />
     <ClCompile Include="Tokenizer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="StateMachine.h" />
+    <ClInclude Include="Symbol.h" />
+    <ClInclude Include="SymbolTable.h" />
     <ClInclude Include="Tokenizer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

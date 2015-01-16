@@ -1,24 +1,20 @@
 /***********************************************************
 * Author:                   Logan Wright
-* Date Created:             01/09/2015
-* Last Modification Date:   01/12/2015
+* Date Created:             01/16/2015
+* Last Modification Date:   01/16/2015
 * Lab Number:               CST 320 Lab 1
 * Filename:                 Main.cpp
 *
 * Overview:
-*   Last term's lexical analyzer code grouped with new
-*   symbol table and symbol classes.  Will be used next for
-*   the preprocessor portion of the lab.  Performs simple
-*   symbol table operations including insertion, search,
-*   and deletion.
+*   A lexical analyzer and preprocessor used to remove
+*   comments and replace preprocessor directives from a
+*   code file based on C++.
 *
 * Input:
-*   None.
+*   Used inputs name of a text file containing C++ code.
 *
 * Output:
-*   Prints output during symbol table operations to indicate
-*   size of table, whether records could be found, and also
-*   whether they were able to be deleted.
+*   Not sure yet.
 ************************************************************/
 
 #include <iostream>
@@ -47,11 +43,17 @@ void runSymbolTable();
 //
 int main(int argc, char* argv[])
 {
-    // Tokenize string
-    // runTokenizer(argv[1]);
+    if (argc < 2)
+    {
+        cout << "ERROR: Must supply filename for code sample." << endl;
+        return 1;
+    }
+
+    // Tokenize file
+    runTokenizer(argv[1]);
 
     // Test symbol table
-    runSymbolTable();
+    //runSymbolTable();
 
     return 0;
 }
@@ -74,7 +76,7 @@ void runTokenizer(char* fileName)
     }
 
     // Create tokenizer
-    Tokenizer tokenizer;
+    Tokenizer tokenizer("tokens.txt");
 
     // Create state machine
     StateMachine stateMachine;

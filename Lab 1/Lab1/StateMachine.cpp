@@ -1,32 +1,18 @@
 /***********************************************************
 * Author:                   Logan Wright
-* Date Created:             12/01/2014
-* Last Modification Date:   12/XX/2014
-* Lab Number:               CST 229 Lab 2
+* Date Created:             01/16/2014
+* Last Modification Date:   01/16/2014
+* Lab Number:               CST 320 Lab 1
 * Filename:                 StateMachine.cpp
 *
 * Overview:
-*   This program is an extension to Lab 1's state machine.
-*   It tokenizes a text file containing programming
-*   language code (C++ in this case), and identifies each
-*   token as a symbol, operator, keyword, identifier, etc.
-*   A token may not match any expected type, in which case
-*   it will be marked as invalid.
+*   Stuff.
 *
 * Input:
-*   The user must provide a text file name containing
-*   the program code, such as: code1.txt
+*   Stuff.
 *
 * Output:
-*   The program will analyze the file and display all
-*   tokens found with a description.
-*
-*       Example:    Token               Token Type
-*                   for                 Keyword
-*                   while               Keyword
-*                   _test               Identifier
-*                   @                   Invalid
-*                   12                  Integer
+*   Stuff.
 ************************************************************/
 
 #include "StateMachine.h"
@@ -42,8 +28,9 @@ using namespace std;
 StateMachine::StateMachine()
 {
     // Add language definitions
-    definitions.push_back(std::make_pair("int-def.txt", Tokenizer::TokenType::Integer));
-    definitions.push_back(std::make_pair("ident-def.txt", Tokenizer::TokenType::Identifier));
+    definitions.push_back(std::make_pair("lang_integer.txt", Tokenizer::TokenType::Integer));
+    definitions.push_back(std::make_pair("lang_float.txt", Tokenizer::TokenType::Float));
+    definitions.push_back(std::make_pair("lang_identifier.txt", Tokenizer::TokenType::Identifier));
 }
 
 StateMachine::~StateMachine()
@@ -78,12 +65,12 @@ Tokenizer::TokenType StateMachine::GetTokenType(string token)
     auto iter = definitions.begin();
     while (iter != definitions.end())
     {
+        ResetStateMachine();
         PrepareStateMachine(iter->first);
         if (IsStringValid(token))
         {
             return iter->second;
         }
-        ResetStateMachine();
 
         ++iter;
     }
@@ -171,7 +158,7 @@ void StateMachine::ResetStateMachine()
 void StateMachine::PrepareStateMachine(string fileName)
 {
     // Load file
-    ifstream file;
+    fstream file;
     file.open(fileName);
     if (!file.is_open()) {
         cout << "ERROR: Could not open language file " << fileName << ", skipping." << endl;
@@ -252,4 +239,6 @@ void StateMachine::PrepareStateMachine(string fileName)
             initState = currState = beginState;
         }
     }
+
+    file.close();
 }

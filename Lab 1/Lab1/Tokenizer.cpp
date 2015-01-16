@@ -32,76 +32,58 @@
 #include "Tokenizer.h"
 
 #include <iostream>
+#include <fstream>
+#include <sstream>
+#include <algorithm>
 
-Tokenizer::Tokenizer()
+Tokenizer::Tokenizer(char* tokenFile)
 {
-    ////////////////////////////////////////////////////////////////
-    //                           Symbols                          //
-    ////////////////////////////////////////////////////////////////
+    ifstream file;
 
-    tokenMatcher.insert(std::pair<string, TokenType>("!", Symbol));
-    tokenMatcher.insert(std::pair<string, TokenType>("(", Symbol));
-    tokenMatcher.insert(std::pair<string, TokenType>(")", Symbol));
-    tokenMatcher.insert(std::pair<string, TokenType>("[", Symbol));
-    tokenMatcher.insert(std::pair<string, TokenType>("]", Symbol));
-    tokenMatcher.insert(std::pair<string, TokenType>("{", Symbol));
-    tokenMatcher.insert(std::pair<string, TokenType>("}", Symbol));
-    tokenMatcher.insert(std::pair<string, TokenType>(":", Symbol));
-    tokenMatcher.insert(std::pair<string, TokenType>(";", Symbol));
-    tokenMatcher.insert(std::pair<string, TokenType>(".", Symbol)); // For identifying floats
+    // Open file
+    file.open(tokenFile);
+    if (!file.is_open()) {
+        cerr << "ERROR: could not open file " << tokenFile << ", exiting." << endl;
+        return;
+    }
 
-    ////////////////////////////////////////////////////////////////
-    //                          Operators                         //
-    ////////////////////////////////////////////////////////////////
+    // Begin analyzing file
+    std::string line;
+    while (std::getline(file, line))
+    {
+        if (line.size() > 0)
+        {
+            // Split line into tokens
+            std::istringstream buf(line);
+            std::istream_iterator<std::string> beg(buf), end;
+            std::vector<std::string> tokens(beg, end);
 
-    tokenMatcher.insert(std::pair<string, TokenType>("%", Operator));
-    tokenMatcher.insert(std::pair<string, TokenType>("*", Operator));
-    tokenMatcher.insert(std::pair<string, TokenType>("+", Operator));
-    tokenMatcher.insert(std::pair<string, TokenType>("-", Operator));
-    tokenMatcher.insert(std::pair<string, TokenType>("/", Operator));
-    tokenMatcher.insert(std::pair<string, TokenType>("<", Operator));
-    tokenMatcher.insert(std::pair<string, TokenType>("=", Operator));
-    tokenMatcher.insert(std::pair<string, TokenType>(">", Operator));
+            // First token is TokenType
+            TokenType tokenType = TokenType::Invalid;
+            for (TokenType type = TokenType::start; type < TokenType::end; type = TokenType(type + 1))
+            {
+                if (EnumToString(type) == *tokens.begin())
+                {
+                    tokenType = type;
+                }
+            }
 
-    ////////////////////////////////////////////////////////////////
-    //                           Boolean                          //
-    ////////////////////////////////////////////////////////////////
+            // Remove TokenType from string
+            tokens.erase(tokens.begin());
 
-    tokenMatcher.insert(std::pair<string, TokenType>("true", Boolean));
-    tokenMatcher.insert(std::pair<string, TokenType>("false", Boolean));
-
-    ////////////////////////////////////////////////////////////////
-    //                           Keywords                         //
-    ////////////////////////////////////////////////////////////////
-
-    // Primitives
-    tokenMatcher.insert(std::pair<string, TokenType>("int", Keyword));
-    tokenMatcher.insert(std::pair<string, TokenType>("float", Keyword));
-    tokenMatcher.insert(std::pair<string, TokenType>("char", Keyword));
-    tokenMatcher.insert(std::pair<string, TokenType>("bool", Keyword));
-
-    // Conditional constructs
-    tokenMatcher.insert(std::pair<string, TokenType>("switch", Keyword));
-    tokenMatcher.insert(std::pair<string, TokenType>("case", Keyword));
-    tokenMatcher.insert(std::pair<string, TokenType>("default", Keyword));
-    tokenMatcher.insert(std::pair<string, TokenType>("if", Keyword));
-    tokenMatcher.insert(std::pair<string, TokenType>("else", Keyword));
-
-    // Looping constructs
-    tokenMatcher.insert(std::pair<string, TokenType>("while", Keyword));
-    tokenMatcher.insert(std::pair<string, TokenType>("do", Keyword));
-    tokenMatcher.insert(std::pair<string, TokenType>("continue", Keyword));
-
-    // General usage
-    tokenMatcher.insert(std::pair<string, TokenType>("break", Keyword));
-    tokenMatcher.insert(std::pair<string, TokenType>("void", Keyword));
-    tokenMatcher.insert(std::pair<string, TokenType>("return", Keyword));
-
-    // Add symbols as delimiters
+            // Add remaining tokens
+            for (auto& token : tokens) {
+                cout << "BUILD: Adding token: " << token << ", type: " << EnumToString(tokenType) << endl;
+                tokenMatcher.insert(std::pair<string, TokenType>(token, tokenType));
+            }
+        }
+    }
+    
+    // Add character symbols and operators as additional delimiters
     auto iter = tokenMatcher.begin();
     while (iter != tokenMatcher.end())
     {
-        if (iter->second == Symbol)
+        if (iter->second == CharSymbol || iter->second == Operator)
         {
             delimiters.append(iter->first);
         }
@@ -113,13 +95,24 @@ Tokenizer::~Tokenizer()
 {
 }
 
-//
-// Tokenizes a string and returns a vector with <String,TokenType> pairs.
-//
+/**************************************************************
+*   Entry:  inStr is a line of text containing keywords, identifiers,
+*			and other C++ language components.
+*
+*    Exit:  A vector containing pairs of token strings and TokenType
+*			enum values.
+*
+* Purpose:  This function takes an input string, which ordinarily
+*			will be a line from a file, and splits it into tokens.
+*
+***************************************************************/
 std::vector<std::pair<string, Tokenizer::TokenType>> Tokenizer::Tokenize(string inStr)
 {
     std::vector<std::pair<string, TokenType>> tokens;
     size_t pos = 0, prev = 0;
+
+    // Add new-line at end of string to make tokenizing last piece easier
+    inStr.append("\n");
 
     while ((pos = inStr.find_first_of(delimiters, prev)) != std::string::npos)
     {
@@ -141,9 +134,14 @@ std::vector<std::pair<string, Tokenizer::TokenType>> Tokenizer::Tokenize(string 
     return tokens;
 }
 
-//
-// Returns a <String,TokenType> pair.
-//
+/**************************************************************
+*   Entry:  A string token.
+*
+*    Exit:  A new string-TokenType pair.
+*
+* Purpose:  Turns a string token into a string-TokenType pair.
+*
+***************************************************************/
 std::pair<string, Tokenizer::TokenType> Tokenizer::GetPair(string inToken)
 {
     auto iter = tokenMatcher.find(inToken);
@@ -157,28 +155,36 @@ std::pair<string, Tokenizer::TokenType> Tokenizer::GetPair(string inToken)
     }
 }
 
-//
-// Returns string representation for TokenType enumerator.
-//
+/**************************************************************
+*   Entry:  A TokenType.
+*
+*    Exit:  A string representation of the TokenType.
+*
+* Purpose:  This function is mainly for debug purposes.  It
+*			prints the enum TokenType as a string representation.
+*
+***************************************************************/
 string Tokenizer::EnumToString(TokenType type)
 {
     switch (type)
     {
+        case PreprocessorDirective:
+            return "PreprocessorDirective";
         case Integer:
             return "Integer";
+        case Float:
+            return "Float";
         case Keyword:
             return "Keyword";
         case Identifier:
             return "Identifier";
-        case Symbol:
-            return "Symbol";
+        case CharSymbol:
+            return "CharSymbol";
         case Operator:
             return "Operator";
         case Boolean:
             return "Boolean";
-        case Invalid:
-            return "Invalid";
         default:
-            return "Unknown Type";
+            return "Invalid";
     }
 }

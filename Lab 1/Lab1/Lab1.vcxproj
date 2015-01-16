@@ -14,7 +14,7 @@
     <ProjectGuid>{6222ED46-3820-45D9-87E1-4DE13497CC9B}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>Lab1</RootNamespace>
-    <ProjectName>Lab 1</ProjectName>
+    <ProjectName>Lab1</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">

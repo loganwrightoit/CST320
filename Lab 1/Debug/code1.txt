@@ -1,0 +1,8 @@
+#define MY_SYMBOL 100
+
+while (true)
+{
+    int x = 4;
+    float y = 0 .0 .0f .0F 1.F 1.0f 1.0F 1..0F;
+    continue;
+}

@@ -69,6 +69,7 @@ int main(int argc, char* argv[])
     while (std::getline(file, line))
     {
         line = preprocessor.run(line);
+        cout << line << endl;
     }
 
         /*

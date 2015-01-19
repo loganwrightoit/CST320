@@ -31,6 +31,9 @@ class Preprocessor
         // Gets directive of line
         Directive getDirective(std::string token);
 
+        // Indicates preprocessor is within a comment block
+        bool inCommentBlock;
+
         // Indicates preprocessor is within a conditional block
         bool inConditional;
 

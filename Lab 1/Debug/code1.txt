@@ -1,9 +1,16 @@
 #define MY_SYMBOL 100
 
 // Some comments here
-while (true)
+/* comment */while /*comment*/(true)
 {
-    int x /* Some more comments */ = 4f;
+    int x /* some more comments */= 4f;
     float y = 1.0F;
+    
+    /*
+        This is a multiline comment
+        So see if it's there or whether
+        it crashes
+    */
+    
     continue;
 }

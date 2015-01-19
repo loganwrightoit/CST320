@@ -119,10 +119,35 @@ Preprocessor::Directive Preprocessor::getDirective(std::string token)
 
 std::string Preprocessor::cleanComments(std::string line)
 {
+    // Check for close comment
+    if (inCommentBlock)
+    {
+        size_t pos = line.find("*/");
+        if (pos == std::string::npos)
+        {
+            return "";
+        }
+        else
+        {
+            line.erase(0, pos + 2); // Erase commented portion
+        }
+        inCommentBlock = false;
+        cleanComments(line); // Clean remaining comments
+    }
+
     while (line.find("/*") != std::string::npos)
     {
         size_t pos = line.find("/*");
-        line.erase(pos, (line.find("*/", pos) - pos) + 2);
+        size_t end = line.find("*/");
+        if (end == std::string::npos)
+        {
+            inCommentBlock = true;
+            line.erase(pos, line.find("\n", pos) - pos);
+        }
+        else
+        {
+            line.erase(pos, (line.find("*/", pos) - pos) + 2);
+        }        
     }
     while (line.find("//") != std::string::npos)
     {

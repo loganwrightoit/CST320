@@ -20,6 +20,9 @@
 
 #include "SymbolTable.h"
 
+#include <string>
+#include <map>
+
 SymbolTable::SymbolTable()
 {
 }

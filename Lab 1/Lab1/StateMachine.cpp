@@ -15,13 +15,13 @@
 *   Stuff.
 ************************************************************/
 
+//#include "Main.h"
 #include "StateMachine.h"
+#include "Tokenizer.h"
 
-#include <fstream>
-#include <string>
 #include <iostream>
-#include <vector>
-#include <map>
+#include <string>
+#include <fstream>
 
 using namespace std;
 
@@ -35,11 +35,11 @@ StateMachine::StateMachine()
 
 StateMachine::~StateMachine()
 {
-    ResetStateMachine();
+    resetStateMachine();
 }
 
 /**************************************************************
-*   Entry:  token is the string to match.
+*   Entry:  token is the std::string to match.
 *
 *    Exit:  a TokenType for matching language type, or Invalid
 *           if no match was found.
@@ -49,7 +49,7 @@ StateMachine::~StateMachine()
 *           TokenType.
 *
 ***************************************************************/
-Tokenizer::TokenType StateMachine::GetTokenType(string token)
+Tokenizer::TokenType StateMachine::getTokenType(std::string token)
 {
     //  Example language definition file
     //
@@ -65,9 +65,9 @@ Tokenizer::TokenType StateMachine::GetTokenType(string token)
     auto iter = definitions.begin();
     while (iter != definitions.end())
     {
-        ResetStateMachine();
-        PrepareStateMachine(iter->first);
-        if (IsStringValid(token))
+        resetStateMachine();
+        prepareStateMachine(iter->first);
+        if (isStringValid(token))
         {
             return iter->second;
         }
@@ -81,19 +81,19 @@ Tokenizer::TokenType StateMachine::GetTokenType(string token)
 /**************************************************************
 *   Entry:  inStr is a character array.
 *
-*    Exit:  a boolean for whether input string satisfies machine
+*    Exit:  a boolean for whether input std::string satisfies machine
 *           algorithm loaded into program.
 *
-* Purpose:  Validates a string against the loaded language.
+* Purpose:  Validates a std::string against the loaded language.
 *
 ***************************************************************/
-bool StateMachine::IsStringValid(string token)
+bool StateMachine::isStringValid(std::string token)
 {
     lastStateMap = (stateMaps.find(initState))->second; // Set current state map to start point (usually zero)
     for (unsigned int idx = 0; idx < token.length(); ++idx)
     {
         // Check if char is in language
-        if (language.find(token.at(idx)) != string::npos)
+        if (language.find(token.at(idx)) != std::string::npos)
         {
             auto iter = lastStateMap->find(token.at(idx)); // Skip char if it has no transition, or change state
             if (iter != lastStateMap->end())
@@ -104,7 +104,7 @@ bool StateMachine::IsStringValid(string token)
         }
         else
         {
-            return false; // Char is not in language, so string is not in language
+            return false; // Char is not in language, so std::string is not in language
         }
     }
 
@@ -127,7 +127,7 @@ bool StateMachine::IsStringValid(string token)
 * Purpose:  Purges transition tables and variables.
 *
 ***************************************************************/
-void StateMachine::ResetStateMachine()
+void StateMachine::resetStateMachine()
 {
     yesStates.clear();
     language = "";
@@ -155,17 +155,17 @@ void StateMachine::ResetStateMachine()
 * Purpose:  Translates a machine definition into algorithms.
 *
 ***************************************************************/
-void StateMachine::PrepareStateMachine(string fileName)
+void StateMachine::prepareStateMachine(std::string fileName)
 {
     // Load file
-    fstream file;
+    std::fstream file;
     file.open(fileName);
     if (!file.is_open()) {
         cout << "ERROR: Could not open language file " << fileName << ", skipping." << endl;
-        exit;
+        return;
     }
 
-    string line;
+    std::string line;
 
     // Get number YES states as lines
     getline(file, line);
@@ -189,7 +189,7 @@ void StateMachine::PrepareStateMachine(string fileName)
         int beginState, endState;
         char byte;
 
-        // Copy string to cstring for tokenizer
+        // Copy std::string to cstd::string for tokenizer
         char buffer[256] = "";
         strcpy_s(buffer, sizeof(buffer), line.c_str());
 
@@ -203,7 +203,7 @@ void StateMachine::PrepareStateMachine(string fileName)
         endState = atoi(pch);
 
         // Add char to language
-        if (language.find_first_of(byte) == string::npos)
+        if (language.find_first_of(byte) == std::string::npos)
         {
             language += byte;
             language.append(",");
@@ -212,24 +212,24 @@ void StateMachine::PrepareStateMachine(string fileName)
         // Create beginState map if it doesn't exist
         if (stateMaps.count(beginState) == 0)
         {
-            auto * temp = new map<char, int>;
+            auto * temp = new std::map<char, int>;
             delMaps.push_back(temp);
-            stateMaps.insert(std::pair<int, map<char, int>*>(beginState, temp));
+            stateMaps.insert(std::pair<int, std::map<char, int>*>(beginState, temp));
         }
 
         // Create endState map if it doesn't exist
         if (stateMaps.count(endState) == 0)
         {
-            auto * temp = new map<char, int>;
+            auto * temp = new std::map<char, int>;
             delMaps.push_back(temp);
-            stateMaps.insert(std::pair<int, map<char, int>*>(endState, temp));
+            stateMaps.insert(std::pair<int, std::map<char, int>*>(endState, temp));
         }
 
         // Add transition to state map
         auto iter = stateMaps.find(beginState);
         if (iter != stateMaps.end()) // Key should always be found
         {
-            map<char, int> *temp = iter->second;
+            std::map<char, int> *temp = iter->second;
             (*temp).insert(std::pair<char, int>(byte, endState));
         }
 

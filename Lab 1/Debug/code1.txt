@@ -1,8 +1,9 @@
 #define MY_SYMBOL 100
 
+// Some comments here
 while (true)
 {
-    int x = 4;
-    float y = 0 .0 .0f .0F 1.F 1.0f 1.0F 1..0F;
+    int x /* Some more comments */ = 4f;
+    float y = 1.0F;
     continue;
 }

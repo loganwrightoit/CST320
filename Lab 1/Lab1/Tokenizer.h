@@ -30,11 +30,9 @@
 ************************************************************/
 
 #pragma once
-#include <vector>
-#include <map>
-#include <string>
 
-using namespace std;
+#include <map>
+#include <vector>
 
 class Tokenizer
 {
@@ -44,7 +42,7 @@ class Tokenizer
         enum TokenType
         {
             start,
-            PreprocessorDirective,
+            Directive,
             Integer,
             Float,
             Keyword,
@@ -56,11 +54,11 @@ class Tokenizer
             end
         };
 
-        Tokenizer(char* tokenFile);
+        Tokenizer();
         ~Tokenizer();
 
         /**********************************************************************
-        * std::vector<std::pair<string, TokenType>> Tokenize(string inStr);
+        * vector<pair<string, TokenType>> Tokenize(string inStr);
         *
         * Purpose: This function takes an input string, which ordinarily
         * will be a line from a file, and splits it into tokens.
@@ -80,15 +78,7 @@ class Tokenizer
         *
         * Exit: A string representation of the TokenType.
         *
-        ***********************************************************************/
-
-        std::vector<std::pair<string, TokenType>> Tokenize(string inStr);
-        string EnumToString(TokenType type);
-
-    private:
-
-        /**********************************************************************
-        * std::pair<string, TokenType> GetPair(string inToken);
+        * pair<string, TokenType> GetPair(string inToken);
         *
         * Purpose: Turns a string token into a string-TokenType pair.
         *
@@ -98,12 +88,17 @@ class Tokenizer
         *
         ***********************************************************************/
 
-        std::pair<string, TokenType> GetPair(string inToken);
+        std::vector<std::pair<std::string, TokenType>> tokenize(std::string inStr);
+        std::pair<std::string, TokenType> getPair(std::string inToken);
+
+        std::string enumToString(TokenType type);
+
+    private:
 
         // Contains string tokens that are common to language, with an associated TokenType.
-        map<string, Tokenizer::TokenType> tokenMatcher;
+        std::map<std::string, Tokenizer::TokenType> tokenMatcher;
 
         // Used to split code strings and discover tokens in language files
-        string delimiters = " \t\n";
+        std::string delimiters = " \t\n";
 
 };

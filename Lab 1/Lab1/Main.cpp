@@ -17,26 +17,33 @@
 *   Not sure yet.
 ************************************************************/
 
+//#include "SymbolTable.h" // Includes Symbol.h
+
+#include "Tokenizer.h"
+#include "Preprocessor.h"
+#include "StateMachine.h"
+
 #include <iostream>
-#include <iomanip>
-#include <string>
 #include <vector>
 #include <fstream>
-#include "Tokenizer.h"
-#include "StateMachine.h"
-#include "SymbolTable.h" // Includes Symbol.h
+#include <string>
 
 using namespace std;
 
 // Program code file
-ifstream file;
+std::ifstream file;
+
+// Tokenizer object
+Tokenizer tokenizer;
+
+// Preprocessor object
+Preprocessor preprocessor;
+
+// State machine object
+StateMachine stateMachine;
 
 // Stores token and type
-vector<std::pair<string, Tokenizer::TokenType>> tokens;
-
-// Forward declarations
-void runTokenizer(char* fileName);
-void runSymbolTable();
+std::vector<std::pair<std::string, Tokenizer::TokenType>> tokens;
 
 //
 //  Main program thread.
@@ -49,53 +56,30 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    // Tokenize file
-    runTokenizer(argv[1]);
-
-    // Test symbol table
-    //runSymbolTable();
-
-    return 0;
-}
-
-/**************************************************************
-*   Entry:  fileName - the name of the file that contains the
-*                      code to tokenize.
-*
-*    Exit:  None.
-*
-* Purpose:  Tokenizes a c++ code file.*
-***************************************************************/
-void runTokenizer(char* fileName)
-{
     // Open file
-    file.open(fileName);
+    file.open(argv[1]);
     if (!file.is_open()) {
-        cerr << "ERROR: could not open file " << fileName << ", exiting." << endl;
-        return;
+        cerr << "ERROR: could not open file " << argv[1] << ", exiting." << endl;
+        return 1;
     }
 
-    // Create tokenizer
-    Tokenizer tokenizer("tokens.txt");
+    // Begin analyzing code
 
-    // Create state machine
-    StateMachine stateMachine;
-
-    // Begin analyzing file
     std::string line;
     while (std::getline(file, line))
     {
-        std::vector<std::pair<string, Tokenizer::TokenType>> result = tokenizer.Tokenize(line);
+        line = preprocessor.run(line);
+    }
 
+        /*
+        // Create TokenType pairs with preprocessed line
+        auto result = tokenizer.tokenize(preprocessor.getResult(line));
         auto iter = result.begin();
         while (iter != result.end())
         {
-            // Check state machine for the following token types:
-            // - Integer
-            // - Float
-            // - Identifier
             if (iter->second == tokenizer.Invalid)
             {
+                // Attempt to match token using language files
                 iter->second = stateMachine.GetTokenType(iter->first);
             }
 
@@ -106,14 +90,17 @@ void runTokenizer(char* fileName)
     }
 
     // Output results to console
-    cout << endl << right << setw(20) << "Token" << setw(20) << "Token Type" << endl;
+    cout << endl << right << setw(20) << "Token" << setw(25) << "Token Type" << endl;
     cout << setw(40) << setfill('-') << "-" << setfill(' ') << endl;
     auto iter = tokens.begin();
     while (iter != tokens.end())
     {
-        cout << setw(20) << iter->first << setw(20) << tokenizer.EnumToString(iter->second) << endl;
+        cout << setw(20) << iter->first << setw(25) << tokenizer.enumToString(iter->second) << endl;
         ++iter;
     }
+    */
+
+    return 0;
 }
 
 /**************************************************************
@@ -124,8 +111,9 @@ void runTokenizer(char* fileName)
 * Purpose:  Creates a symbol table and performs simple tests
 *           with basic console output.
 ***************************************************************/
-void runSymbolTable()
+void runSymbolTableTest()
 {
+    /*
     // Stores symbols
     SymbolTable symbolTable;
 
@@ -140,7 +128,7 @@ void runSymbolTable()
 
     for (int idx = 0; idx < 3; ++idx)
     {
-        std::string name;
+        string name;
 
         switch (idx)
         {
@@ -168,4 +156,5 @@ void runSymbolTable()
             cout << "ERROR: Could not find symbol in table.\n";
         }
     }
+    */
 }

@@ -21,6 +21,7 @@
 #pragma once
 
 #include "Symbol.h"
+
 #include <map>
 
 class SymbolTable

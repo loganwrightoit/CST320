@@ -19,7 +19,6 @@
 
 #include "Symbol.h"
 
-
 Symbol::Symbol(std::string name, Type type, Use use, std::string value) :
     _name(name), _type(type), _use(use), _value(value) {}
 
@@ -30,7 +29,7 @@ Symbol::~Symbol()
 /**************************************************************
 *   Entry:  None.
 *
-*    Exit:  A std::string identifier.
+*    Exit:  A string identifier.
 *
 * Purpose:  Returns the name of the symbol used for the symbol
 *           table.
@@ -72,7 +71,7 @@ Symbol::Use Symbol::getUse() const
 /**************************************************************
 *   Entry:  None.
 *
-*    Exit:  A std::string representing a value.
+*    Exit:  A string representing a value.
 *
 * Purpose:  Returns the string value of the symbol, such as when
 *           it represents a constant.

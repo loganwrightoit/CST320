@@ -33,6 +33,8 @@
 
 #include "Tokenizer.h"
 
+//#include <string>
+
 class StateMachine
 {
 
@@ -42,28 +44,28 @@ class StateMachine
         ~StateMachine();
 
         /**********************************************************************
-        *	Tokenizer::TokenType GetTokenType(string token);
+        *	Tokenizer::TokenType GetTokenType(std::string token);
         *
-        *	  	Purpose:	Gets the TokenType that represents the given string.
+        *	  	Purpose:	Gets the TokenType that represents the given std::string.
         *
-        *		Entry:		A string token.
+        *		Entry:		A std::string token.
         *
         *		Exit:		A TokenType enum.
         *
         ***********************************************************************/
 
-        Tokenizer::TokenType GetTokenType(string token);
+        Tokenizer::TokenType getTokenType(std::string token);
 
     private:
 
         /**********************************************************************
-        *	bool IsStringValid(string token);
+        *	bool Isstd::stringValid(std::string token);
         *
-        *		Purpose:	Validates a string against the loaded language.
+        *		Purpose:	Validates a std::string against the loaded language.
         *
-        *		Entry:		A string token.
+        *		Entry:		A std::string token.
         *
-        *		Exit:		a boolean for whether input string satisfies machine
+        *		Exit:		a boolean for whether input std::string satisfies machine
         *					algorithm loaded into program.
         *
         *	void ResetStateMachine();
@@ -74,7 +76,7 @@ class StateMachine
         *
         *		Exit:		None.
         *
-        *	void PrepareStateMachine(string fileName);
+        *	void PrepareStateMachine(std::string fileName);
         *
         *	  	Purpose:	Translates a machine definition into algorithms.
         *
@@ -85,27 +87,27 @@ class StateMachine
         *
         ***********************************************************************/
 
-        bool IsStringValid(string token);
-        void ResetStateMachine();
-        void PrepareStateMachine(string fileName);
+        bool isStringValid(std::string token);
+        void resetStateMachine();
+        void prepareStateMachine(std::string fileName);
 
         // Holds <filename,TokenType> pair for language definitions
-        std::vector<std::pair<string, Tokenizer::TokenType>> definitions;
+        std::vector<std::pair<std::string, Tokenizer::TokenType>> definitions;
 
         // Holds letters defined in language
-        string language;
+        std::string language;
 
         // Holds YES states
-        vector<int> yesStates;
+        std::vector<int> yesStates;
 
         // Store map pointers to release later
-        vector<map<char, int>*> delMaps;
+        std::vector<std::map<char, int>*> delMaps;
 
         // Holds state maps
-        map<int, map<char, int>*> stateMaps;
+        std::map<int, std::map<char, int>*> stateMaps;
 
         // Current state map
-        map<char, int> *lastStateMap;
+        std::map<char, int> *lastStateMap;
 
         // The initial state (determined by first state in first transition)
         int initState = -1;

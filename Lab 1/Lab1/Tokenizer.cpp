@@ -31,19 +31,24 @@
 
 #include "Tokenizer.h"
 
+#include <vector>
+#include <map>
+#include <string>
+
 #include <iostream>
 #include <fstream>
 #include <sstream>
 #include <algorithm>
 
-Tokenizer::Tokenizer(char* tokenFile)
+Tokenizer::Tokenizer()
 {
-    ifstream file;
+    std::string fileName = "tokens.txt";
+    std::ifstream file;
 
     // Open file
-    file.open(tokenFile);
+    file.open(fileName);
     if (!file.is_open()) {
-        cerr << "ERROR: could not open file " << tokenFile << ", exiting." << endl;
+        std::cerr << "ERROR: could not open file " << fileName << ", exiting." << std::endl;
         return;
     }
 
@@ -62,7 +67,7 @@ Tokenizer::Tokenizer(char* tokenFile)
             TokenType tokenType = TokenType::Invalid;
             for (TokenType type = TokenType::start; type < TokenType::end; type = TokenType(type + 1))
             {
-                if (EnumToString(type) == *tokens.begin())
+                if (enumToString(type) == *tokens.begin())
                 {
                     tokenType = type;
                 }
@@ -73,8 +78,7 @@ Tokenizer::Tokenizer(char* tokenFile)
 
             // Add remaining tokens
             for (auto& token : tokens) {
-                cout << "BUILD: Adding token: " << token << ", type: " << EnumToString(tokenType) << endl;
-                tokenMatcher.insert(std::pair<string, TokenType>(token, tokenType));
+                tokenMatcher.insert(std::pair<std::string, TokenType>(token, tokenType));
             }
         }
     }
@@ -106,9 +110,9 @@ Tokenizer::~Tokenizer()
 *			will be a line from a file, and splits it into tokens.
 *
 ***************************************************************/
-std::vector<std::pair<string, Tokenizer::TokenType>> Tokenizer::Tokenize(string inStr)
+std::vector<std::pair<std::string, Tokenizer::TokenType>> Tokenizer::tokenize(std::string inStr)
 {
-    std::vector<std::pair<string, TokenType>> tokens;
+    std::vector<std::pair<std::string, TokenType>> tokens;
     size_t pos = 0, prev = 0;
 
     // Add new-line at end of string to make tokenizing last piece easier
@@ -118,14 +122,14 @@ std::vector<std::pair<string, Tokenizer::TokenType>> Tokenizer::Tokenize(string 
     {
         if (pos != prev)
         {
-            tokens.push_back(Tokenizer::GetPair(inStr.substr(prev, pos - prev)));
+            tokens.push_back(Tokenizer::getPair(inStr.substr(prev, pos - prev)));
         }
 
         // If position is before symbol, add it
         auto iter = tokenMatcher.find(inStr.substr(pos, 1));
         if (iter != tokenMatcher.end())
         {
-            tokens.push_back(Tokenizer::GetPair(iter->first));
+            tokens.push_back(Tokenizer::getPair(iter->first));
         }
 
         prev = pos + 1;
@@ -142,7 +146,7 @@ std::vector<std::pair<string, Tokenizer::TokenType>> Tokenizer::Tokenize(string 
 * Purpose:  Turns a string token into a string-TokenType pair.
 *
 ***************************************************************/
-std::pair<string, Tokenizer::TokenType> Tokenizer::GetPair(string inToken)
+std::pair<std::string, Tokenizer::TokenType> Tokenizer::getPair(std::string inToken)
 {
     auto iter = tokenMatcher.find(inToken);
     if (iter != tokenMatcher.end())
@@ -164,12 +168,10 @@ std::pair<string, Tokenizer::TokenType> Tokenizer::GetPair(string inToken)
 *			prints the enum TokenType as a string representation.
 *
 ***************************************************************/
-string Tokenizer::EnumToString(TokenType type)
+std::string Tokenizer::enumToString(TokenType type)
 {
     switch (type)
     {
-        case PreprocessorDirective:
-            return "PreprocessorDirective";
         case Integer:
             return "Integer";
         case Float:

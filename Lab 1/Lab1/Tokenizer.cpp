@@ -30,6 +30,7 @@
 ************************************************************/
 
 #include "Tokenizer.h"
+#include "StateMachine.h"
 
 #include <vector>
 #include <map>
@@ -65,7 +66,7 @@ Tokenizer::Tokenizer()
 
             // First token is TokenType
             TokenType tokenType = TokenType::Invalid;
-            for (TokenType type = TokenType::start; type < TokenType::end; type = TokenType(type + 1))
+            for (TokenType type = TokenType::begin; type < TokenType::end; type = TokenType(type + 1))
             {
                 if (enumToString(type) == *tokens.begin())
                 {
@@ -134,9 +135,9 @@ std::vector<Tokenizer::Token> Tokenizer::tokenize(std::string inStr)
             if (symbol == "\"")
             {
                 size_t endPos = inStr.find_first_of("\"", pos + 1);
-                tokens.push_back(Tokenizer::getToken(pos, inStr.substr(pos, 1)));
+                //tokens.push_back(Tokenizer::getToken(pos, inStr.substr(pos, 1))); // Adds opening quote
                 tokens.push_back(Token(pos + 1, TokenType::String, inStr.substr(pos + 1, endPos - pos - 1)));
-                tokens.push_back(Tokenizer::getToken(endPos, inStr.substr(endPos, 1)));
+                //tokens.push_back(Tokenizer::getToken(endPos, inStr.substr(endPos, 1))); // Adds closing quote
                 prev = pos = endPos + 1;
                 continue;
             }
@@ -169,7 +170,13 @@ Tokenizer::Token Tokenizer::getToken(size_t pos, std::string inToken)
     }
     else
     {
-        return Token(pos, Invalid, inToken);
+        Token token(pos, Invalid, inToken);
+        
+        // Attempt to match token using language files
+        StateMachine stateMachine;
+        token.setType(stateMachine.getTokenType(inToken));
+
+        return token;
     }
 }
 
@@ -186,6 +193,8 @@ std::string Tokenizer::enumToString(TokenType type)
 {
     switch (type)
     {
+        case Directive:
+            return "Directive";
         case Integer:
             return "Integer";
         case Float:

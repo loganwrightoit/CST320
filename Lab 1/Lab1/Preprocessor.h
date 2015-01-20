@@ -2,7 +2,7 @@
 
 #include "SymbolTable.h" // Includes Symbol.h
 
-//#include <string>
+#include "Tokenizer.h"
 
 class Preprocessor
 {
@@ -11,12 +11,11 @@ class Preprocessor
 
         enum Directive
         {
-            Definition,
+            Define,
             IfNotDefined,
             IfDefined,
             Else,
-            EndIf,
-            None
+            EndIf
         };
 
         Preprocessor();
@@ -27,6 +26,9 @@ class Preprocessor
 
     private:
 
+        // Adds symbol and returns true if successful
+        bool addSymbol(Tokenizer::Token token, std::string value = "");
+
         // Tests whether line starts with given token
         bool stringStartsWith(std::string line, std::string token);
 
@@ -34,10 +36,10 @@ class Preprocessor
         std::string cleanComments(std::string line);
 
         // Replaces symbols in line
-        std::string Preprocessor::replaceSymbols(std::string line);
+        std::string replaceSymbols(std::string line);
 
         // Handles directives
-        void Preprocessor::processDirective(std::string line);
+        void processDirective(std::string line);
 
         // Gets directive of line
         Directive getDirective(std::string token);

@@ -1,3 +1,4 @@
+Directive #define #ifndef #ifdef #else #endif
 CharSymbol ! ( ) [ ] { } : ; "
 Operator % * + - / < = >
 Boolean true false

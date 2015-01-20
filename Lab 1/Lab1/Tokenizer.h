@@ -41,7 +41,8 @@ class Tokenizer
 
         enum TokenType
         {
-            start,
+            begin = 0,
+            Directive,
             Integer,
             Float,
             Keyword,

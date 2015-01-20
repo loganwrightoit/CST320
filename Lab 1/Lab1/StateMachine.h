@@ -33,8 +33,6 @@
 
 #include "Tokenizer.h"
 
-//#include <string>
-
 class StateMachine
 {
 

@@ -5,6 +5,7 @@
 #include <iostream>
 #include <string>
 #include <sstream>
+#include <assert.h>
 
 using namespace std;
 
@@ -86,13 +87,22 @@ std::string Preprocessor::replaceSymbols(std::string line)
     {
         if (token.type() == tokenizer.Identifier)
         {
-            // Check if value exists in symbol table
             auto symbol = symbolTable.find(token.value());
-
             if (symbol != nullptr)
             {
-                // Replace symbol with value
-                line.replace(token.pos(), token.value().length(), symbol->getName());
+                if (!symbol->getValue().empty())
+                {
+                    std::string value = symbol->getValue();
+
+                    // If value is string, put in quotes
+                    if (value.find(" ") != string::npos)
+                    {
+                        value = "\"" + value + "\"";
+                    }
+                    
+                    // Replace symbol with value
+                    line.replace(token.pos(), token.value().length(), value);
+                }
             }
 
         }
@@ -104,97 +114,70 @@ std::string Preprocessor::replaceSymbols(std::string line)
 void Preprocessor::processDirective(std::string line)
 {
     Tokenizer tokenizer;
-    tokenizer.tokenize(line);
+    auto tokens = tokenizer.tokenize(line);
 
-    // We'll tokenize using default space delimiter for simplicity
-    std::istringstream iss(line);
-    string token[3];
-    for (int idx = 0; iss >> token[idx] && idx < 3; ++idx) {}
-
-    if (!token[0].empty()) // Directive
+    switch (getDirective(tokens.at(0).value()))
     {
-        if (token[0] == "#define")
-        {
-            if (!token[1].empty()) // Name
+        case Define:
+            assert(tokens.size() == 2 || tokens.size() == 3);
+            if (tokens.size() == 3)
             {
-                // Verify token is identifier
-                Tokenizer::Token temp_token = tokenizer.getToken(line.find(token[1]), line);
-
-                if (temp_token.type() != tokenizer.Identifier)
-                {
-                    return; // Or terminate program somehow
-                }
-                else
-                {
-                    cout << "Found definition for symbol: " << temp_token.value() << endl;
-                }
-                    
-
-                // Create symbol
-                // Symbol(std::string name, Type type, Use use, std::string value);
-                // TODO: Identify symbol type using "bool" keyword, int, float, and string identifiers.
-                bool result = symbolTable.add(Symbol(token[1], Symbol::String, Symbol::Use::VariableName, token[2]));
-
-                if (!result)
-                {
-                    // Exit program somehow, no redefinition allowed
-                }
+                assert(addSymbol(tokens.at(1), tokens.at(2).value()));
             }
-        }
-        else if (token[0] == "#endif")
-        {
-            doElse = emptyLine = false;
-        }
-        else if (token[0] == "#else")
-        {
+            else
+            {
+                assert(addSymbol(tokens.at(1)));
+            }
+            break;
+        case IfNotDefined:
+            assert(tokens.size() == 2);
+            if (symbolTable.find(tokens.at(1).value()))
+            {
+                doElse = emptyLine = true;
+            }
+            break;
+        case IfDefined:
+            assert(tokens.size() == 2);
+            if (symbolTable.find(tokens.at(1).value()) == nullptr)
+            {
+                doElse = emptyLine = true;
+            }
+            break;
+        case Else:
             if (!doElse)
-            {
                 emptyLine = true;
-            } 
-        }
-        else
-        {
-            if (!token[1].empty())
-            {
-                if (token[0] == "#ifndef")
-                {
-                    // If symbol IS defined, emptyLine = true, doElse = true
-                    if (symbolTable.find(token[1]))
-                    {
-                        emptyLine = doElse = true;
-                    }
-                }
-                else if (token[0] == "#ifdef")
-                {
-                    // If symbol IS NOT defined, emptyLine = true, doElse = true
-                    if (!symbolTable.find(token[1]))
-                    {
-                        emptyLine = doElse = true;
-                    }
-                }
-            }
-            else if (token[0] == "#else")
-            {
-                if (doElse)
-                    emptyLine = false;
-            }
-        }
+            break;
+        case EndIf:
+            doElse = emptyLine = false;
+            break;
     }
+}
 
-    cout << "Processed directive, searching for symbol..." << endl;
+bool Preprocessor::addSymbol(Tokenizer::Token token, std::string value)
+{
+    assert(token.type() == Tokenizer::Identifier);
+    Symbol symbol(token.value(), Symbol::String, Symbol::Use::VariableName, value);
 
-    bool hasValue = symbolTable.find(token[2]);
-    if (hasValue)
-    {
-        cout << "Symbol table contains value: " << token[2] << endl;
-    }
-    else
-    {
-        cout << "Symbol table has no entries." << endl;
-    }
+    cout << "Created new symbol: " << symbol.getName() << " with value " << symbol.getValue() << endl;
+
+    return symbolTable.add(symbol);
 }
 
 bool Preprocessor::stringStartsWith(std::string line, std::string token)
 {
     return line.compare(0, token.length(), token) == 0;
+}
+
+Preprocessor::Directive Preprocessor::getDirective(std::string name)
+{
+    if (name == "#define")
+        return Define;
+    else if (name == "#ifndef")
+        return IfNotDefined;
+    else if (name == "#ifdef")
+        return IfDefined;
+    else if (name == "#else")
+        return Else;
+    else
+        return EndIf;
 }

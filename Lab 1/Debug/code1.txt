@@ -1,17 +1,24 @@
 #define MY_SYMBOL 100
 
+#ifdef MY_SYMBOL
+#define NEW_STRING "Symbol is good"
+//#else
+//#define NEW_STRING "Symbol is bad"
+#endif
+
 // Some comments here
 /* comment */while /*comment*/(true)
 {
     int x /* some more comments */= 4f;
     float y = MY_SYMBOL;
+    float z = 0.5F;
     
     /*
         This is a multiline comment
         So see if it's there or whether
         it crashes
     */
-    string test = "Hi there dude";
+    string symbolString = NEW_STRING;
     
     continue;
 }

@@ -47,6 +47,11 @@ static StateMachine stateMachine;
 std::vector<Tokenizer::Token> tokens;
 
 //
+// Forward declarations
+//
+void printTokens();
+
+//
 //  Main program thread.
 //
 int main(int argc, char* argv[])
@@ -70,26 +75,26 @@ int main(int argc, char* argv[])
     while (std::getline(file, line))
     {
         line = preprocessor.run(line);
-        
-        
+        cout << line << endl;
+
         // Create TokenType pairs with preprocessed line
         auto result = tokenizer.tokenize(line);
         auto iter = result.begin();
         while (iter != result.end())
         {
-            if (iter->type() == tokenizer.Invalid)
-            {
-                // Attempt to match token using language files
-                iter->setType(stateMachine.getTokenType(iter->value()));
-            }
-
             // Store token and type pair
             tokens.push_back(*iter);
             ++iter;
         }
     }
 
-    // Output results to console
+    //printTokens();
+
+    return 0;
+}
+
+void printTokens()
+{
     cout << endl << right << setw(20) << "Token" << setw(25) << "Token Type" << endl;
     cout << setw(40) << setfill('-') << "-" << setfill(' ') << endl;
     auto iter = tokens.begin();
@@ -98,8 +103,6 @@ int main(int argc, char* argv[])
         cout << setw(20) << iter->value() << setw(25) << tokenizer.enumToString(iter->type()) << endl;
         ++iter;
     }
-
-    return 0;
 }
 
 /**************************************************************

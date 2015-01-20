@@ -87,7 +87,7 @@ int main(int argc, char* argv[])
         }
     }
 
-    //printTokens();
+    printTokens();
 
     return 0;
 }

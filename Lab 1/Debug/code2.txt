@@ -1,0 +1,19 @@
+#define A_SYMBOL "some data"
+
+#ifdef A_SYMBOL
+#define A_STRING "A_SYMBOL is found"
+#else
+#define A_STRING "A_SYMBOL is not found"
+#endif
+
+//
+// Main program function
+//
+int main()
+{
+    string _string = A_STRING;
+    for (int idx = 0; idx < 10; ++idx)
+    {
+        cout << "Hi!" << endl;
+    }
+}

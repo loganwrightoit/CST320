@@ -47,7 +47,20 @@ bool SymbolTable::add(Symbol symbol)
     // Second value of pair is if element insertion was successful
     // If element already existed in table, will return false
     return (_table.insert(std::make_pair(symbol.getName(), symbol))).second;
-};
+}
+
+/**************************************************************
+*   Entry:  name string - the name of the symbol.
+*
+*    Exit:  Returns true if symbol table contains symbol.
+*
+* Purpose:  Checks to see whether symbol table contains symbol.
+*
+***************************************************************/
+bool SymbolTable::contains(std::string name)
+{
+    return _table.find(name) != _table.end();
+}
 
 /**************************************************************
 *   Entry:  name string - the name of the symbol.
@@ -62,14 +75,16 @@ bool SymbolTable::add(Symbol symbol)
 ***************************************************************/
 Symbol* SymbolTable::find(std::string name)
 {
+    Symbol* symbol = nullptr;
+
     auto result = _table.find(name);
     if (result != _table.end())
     {
-        return &(result->second);
+        symbol = &(result->second);
     }
 
-    return nullptr;
-};
+    return symbol;
+}
 
 /**************************************************************
 *   Entry:  name string - the name of the symbol.
@@ -85,7 +100,7 @@ bool SymbolTable::remove(std::string name)
 {
     // Returns number of entries removed (max 1)
     return _table.erase(name);
-};
+}
 
 /**************************************************************
 *   Entry:  None.

@@ -1,6 +1,5 @@
 #include "Preprocessor.h"
 #include "Tokenizer.h"
-//#include "SymbolTable.h" // Includes Symbol.h
 
 #include <iostream>
 #include <string>
@@ -25,13 +24,21 @@ std::string Preprocessor::run(std::string line)
     if (line.size() == 0)
         return "";
 
-    line = replaceSymbols(line);
+    // Check whether line should be tossed due to conditional state
+    // This isn't complete, but it works well enough
+    if (stringStartsWith(line, "#define") || !stringStartsWith(line, "#"))
+    {
+        if (emptyLine)
+            return "";
+    }
 
     if (line.substr(0, 1) == "#")
     {
         processDirective(line);
         return "";
     }
+
+    line = replaceSymbols(line);
 
     return emptyLine ? "" : line;
 }
@@ -121,31 +128,22 @@ void Preprocessor::processDirective(std::string line)
         case Define:
             assert(tokens.size() == 2 || tokens.size() == 3);
             if (tokens.size() == 3)
-            {
                 assert(addSymbol(tokens.at(1), tokens.at(2).value()));
-            }
             else
-            {
                 assert(addSymbol(tokens.at(1)));
-            }
             break;
         case IfNotDefined:
             assert(tokens.size() == 2);
-            if (symbolTable.find(tokens.at(1).value()))
-            {
+            if (symbolTable.contains(tokens.at(1).value()))
                 doElse = emptyLine = true;
-            }
             break;
         case IfDefined:
             assert(tokens.size() == 2);
-            if (symbolTable.find(tokens.at(1).value()) == nullptr)
-            {
+            if (!symbolTable.contains(tokens.at(1).value()))
                 doElse = emptyLine = true;
-            }
             break;
         case Else:
-            if (!doElse)
-                emptyLine = true;
+            emptyLine = !doElse;
             break;
         case EndIf:
             doElse = emptyLine = false;
@@ -157,9 +155,6 @@ bool Preprocessor::addSymbol(Tokenizer::Token token, std::string value)
 {
     assert(token.type() == Tokenizer::Identifier);
     Symbol symbol(token.value(), Symbol::String, Symbol::Use::VariableName, value);
-
-    cout << "Created new symbol: " << symbol.getName() << " with value " << symbol.getValue() << endl;
-
     return symbolTable.add(symbol);
 }
 

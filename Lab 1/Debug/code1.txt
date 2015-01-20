@@ -1,9 +1,9 @@
 #define MY_SYMBOL 100
 
-#ifdef MY_SYMBOL
+#ifndef MY_SYMBOL
 #define NEW_STRING "Symbol is good"
-//#else
-//#define NEW_STRING "Symbol is bad"
+#else
+#define NEW_STRING "Symbol is bad"
 #endif
 
 // Some comments here

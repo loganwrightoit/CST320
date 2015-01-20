@@ -33,6 +33,7 @@ class SymbolTable
         ~SymbolTable();
 
         bool add(Symbol symbol);
+        bool contains(std::string name);
         Symbol* find(std::string name);
         bool remove(std::string name);
         int size();

@@ -1,7 +1,7 @@
 /***********************************************************
 * Author:                   Logan Wright
 * Date Created:             01/09/2015
-* Last Modification Date:   01/12/2015
+* Last Modification Date:   01/19/2015
 * Lab Number:               CST 320 Lab 1
 * Filename:                 Symbol.cpp
 *
@@ -33,7 +33,6 @@ Symbol::~Symbol()
 *
 * Purpose:  Returns the name of the symbol used for the symbol
 *           table.
-*
 ***************************************************************/
 std::string Symbol::getName() const
 {
@@ -47,7 +46,6 @@ std::string Symbol::getName() const
 *
 * Purpose:  Returns the type of the symbol, such as Int, Float,
 *           String, etc.
-*
 ***************************************************************/
 Symbol::Type Symbol::getType() const
 {
@@ -61,7 +59,6 @@ Symbol::Type Symbol::getType() const
 *
 * Purpose:  Returns the use of the symbol, such as whether it
 *           is a function name, variable name, constant, etc.
-*
 ***************************************************************/
 Symbol::Use Symbol::getUse() const
 {
@@ -75,7 +72,6 @@ Symbol::Use Symbol::getUse() const
 *
 * Purpose:  Returns the string value of the symbol, such as when
 *           it represents a constant.
-*
 ***************************************************************/
 std::string Symbol::getValue() const
 {

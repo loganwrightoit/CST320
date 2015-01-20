@@ -1,21 +1,22 @@
 /***********************************************************
 * Author:                   Logan Wright
 * Date Created:             01/16/2014
-* Last Modification Date:   01/16/2014
+* Last Modification Date:   01/19/2014
 * Lab Number:               CST 320 Lab 1
 * Filename:                 StateMachine.cpp
 *
 * Overview:
-*   Stuff.
+*   A state machine that can load language files defined in
+*   plain text files.  It can match strings of text to
+*   identify whether they fit the defined languages.
 *
 * Input:
-*   Stuff.
+*   None.
 *
 * Output:
-*   Stuff.
+*   None.
 ************************************************************/
 
-//#include "Main.h"
 #include "StateMachine.h"
 #include "Tokenizer.h"
 
@@ -47,7 +48,6 @@ StateMachine::~StateMachine()
 * Purpose:  Matches a token against a list of language
 *           definitions to identify whether it matches a
 *           TokenType.
-*
 ***************************************************************/
 Tokenizer::TokenType StateMachine::getTokenType(std::string token)
 {
@@ -85,7 +85,6 @@ Tokenizer::TokenType StateMachine::getTokenType(std::string token)
 *           algorithm loaded into program.
 *
 * Purpose:  Validates a std::string against the loaded language.
-*
 ***************************************************************/
 bool StateMachine::isStringValid(std::string token)
 {
@@ -125,7 +124,6 @@ bool StateMachine::isStringValid(std::string token)
 *    Exit:  none.
 *
 * Purpose:  Purges transition tables and variables.
-*
 ***************************************************************/
 void StateMachine::resetStateMachine()
 {
@@ -153,7 +151,6 @@ void StateMachine::resetStateMachine()
 *    Exit:  none.
 *
 * Purpose:  Translates a machine definition into algorithms.
-*
 ***************************************************************/
 void StateMachine::prepareStateMachine(std::string fileName)
 {

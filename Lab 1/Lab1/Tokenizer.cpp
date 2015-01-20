@@ -1,32 +1,18 @@
 /***********************************************************
 * Author:                   Logan Wright
-* Date Created:             12/01/2014
-* Last Modification Date:   12/XX/2014
-* Lab Number:               CST 229 Lab 2
+* Date Created:             01/16/2015
+* Last Modification Date:   01/20/2015
+* Lab Number:               CST 320 Lab 1
 * Filename:                 Tokenizer.cpp
 *
 * Overview:
-*   This program is an extension to Lab 1's state machine.
-*   It tokenizes a text file containing programming
-*   language code (C++ in this case), and identifies each
-*   token as a symbol, operator, keyword, identifier, etc.
-*   A token may not match any expected type, in which case
-*   it will be marked as invalid.
+*   Tokenizes a code file using C++ token types.
 *
 * Input:
-*   The user must provide a text file name containing
-*   the program code, such as: code1.txt
+*   None.
 *
 * Output:
-*   The program will analyze the file and display all
-*   tokens found with a description.
-*
-*       Example:    Token               Token Type
-*                   for                 Keyword
-*                   while               Keyword
-*                   _test               Identifier
-*                   @                   Invalid
-*                   12                  Integer
+*   None.
 ************************************************************/
 
 #include "Tokenizer.h"

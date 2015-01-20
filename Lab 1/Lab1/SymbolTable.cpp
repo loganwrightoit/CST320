@@ -1,7 +1,7 @@
 /***********************************************************
 * Author:                   Logan Wright
 * Date Created:             01/09/2015
-* Last Modification Date:   01/12/2015
+* Last Modification Date:   01/19/2015
 * Lab Number:               CST 320 Lab 1
 * Filename:                 SymbolTable.cpp
 *
@@ -40,7 +40,6 @@ SymbolTable::~SymbolTable()
 *           Boolean false if table already contained symbol.
 *
 * Purpose:  Adds a new symbol to the symbol table.
-*
 ***************************************************************/
 bool SymbolTable::add(Symbol symbol)
 {
@@ -55,7 +54,6 @@ bool SymbolTable::add(Symbol symbol)
 *    Exit:  Returns true if symbol table contains symbol.
 *
 * Purpose:  Checks to see whether symbol table contains symbol.
-*
 ***************************************************************/
 bool SymbolTable::contains(std::string name)
 {
@@ -71,7 +69,6 @@ bool SymbolTable::contains(std::string name)
 *           Returns nullptr if symbol does not exist.
 *
 * Purpose:  Adds a new symbol to the symbol table.
-*
 ***************************************************************/
 Symbol* SymbolTable::find(std::string name)
 {
@@ -94,7 +91,6 @@ Symbol* SymbolTable::find(std::string name)
 *           Boolean false if symbol not in table.
 *
 * Purpose:  Removes a symbol from the symbol table.
-*
 ***************************************************************/
 bool SymbolTable::remove(std::string name)
 {
@@ -109,7 +105,6 @@ bool SymbolTable::remove(std::string name)
 *
 * Purpose:  Allows retrieval of number of entries in symbol
 *           table map.
-*
 ***************************************************************/
 int SymbolTable::size()
 {

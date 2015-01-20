@@ -1,3 +1,23 @@
+/***********************************************************
+* Author:                   Logan Wright
+* Date Created:             01/19/2015
+* Last Modification Date:   01/19/2015
+* Lab Number:               CST 320 Lab 1
+* Filename:                 Preprocessor.cpp
+*
+* Overview:
+*   This handles preprocessor routines such as parsing
+*   directives, adding symbols to the symbol table, removing
+*   comments, and anything else necessary before a line of
+*   code is passed to the tokenizer.
+*
+* Input:
+*   None.
+*
+* Output:
+*   None.
+************************************************************/
+
 #include "Preprocessor.h"
 #include "Tokenizer.h"
 
@@ -12,11 +32,19 @@ Preprocessor::Preprocessor()
 {
 }
 
-
 Preprocessor::~Preprocessor()
 {
 }
 
+/**************************************************************
+*   Entry:  A std::string line of code text to be tokenized.
+*
+*    Exit:  The resulting std::string line after running
+*           preprocessing tasks on it.
+*
+* Purpose:  Processes a line by replacing symbols, removing
+*           comments, and handling preprocessor directives.
+***************************************************************/
 std::string Preprocessor::run(std::string line)
 {
     line = cleanComments(line);
@@ -43,6 +71,14 @@ std::string Preprocessor::run(std::string line)
     return emptyLine ? "" : line;
 }
 
+
+/**************************************************************
+*   Entry:  A std::string line of code text.
+*
+*    Exit:  A std::string line with comments removed.
+*
+* Purpose:  Removes comments from line.
+***************************************************************/
 std::string Preprocessor::cleanComments(std::string line)
 {
     // Check for close comment
@@ -84,6 +120,14 @@ std::string Preprocessor::cleanComments(std::string line)
     return line;
 }
 
+/**************************************************************
+*   Entry:  A std::string line of code text.
+*
+*    Exit:  The resulting std::string line after replacing
+*           symbols with values stored in the symbol table.
+*
+* Purpose:  Replaces symbols in the line of code text.
+***************************************************************/
 std::string Preprocessor::replaceSymbols(std::string line)
 {
     Tokenizer tokenizer;
@@ -118,6 +162,14 @@ std::string Preprocessor::replaceSymbols(std::string line)
     return line;
 }
 
+/**************************************************************
+*   Entry:  A std::string line of code text.
+*
+*    Exit:  None.
+*
+* Purpose:  Handles directive tasks such as defining symbols,
+*           and running conditional directives.
+***************************************************************/
 void Preprocessor::processDirective(std::string line)
 {
     Tokenizer tokenizer;
@@ -151,6 +203,14 @@ void Preprocessor::processDirective(std::string line)
     }
 }
 
+/**************************************************************
+*   Entry:  A Token object.
+*           A std::string value.
+*
+*    Exit:  Boolean true if symbol did not exist in table.
+*
+* Purpose:  Adds symbol to symbol table.
+***************************************************************/
 bool Preprocessor::addSymbol(Tokenizer::Token token, std::string value)
 {
     assert(token.type() == Tokenizer::Identifier);
@@ -158,11 +218,26 @@ bool Preprocessor::addSymbol(Tokenizer::Token token, std::string value)
     return symbolTable.add(symbol);
 }
 
+/**************************************************************
+*   Entry:  A std::string line, and a std::string token.
+*
+*    Exit:  Boolean true if line starts begins with token.
+*
+* Purpose:  Returns true if a string line starts with the
+*           provided token.
+***************************************************************/
 bool Preprocessor::stringStartsWith(std::string line, std::string token)
 {
     return line.compare(0, token.length(), token) == 0;
 }
 
+/**************************************************************
+*   Entry:  A std::string token value.
+*
+*    Exit:  A preprocessor directive type.
+*
+* Purpose:  Parses a token string into a directive type.
+***************************************************************/
 Preprocessor::Directive Preprocessor::getDirective(std::string name)
 {
     if (name == "#define")

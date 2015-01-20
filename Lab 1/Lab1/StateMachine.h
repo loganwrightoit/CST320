@@ -1,32 +1,20 @@
 /***********************************************************
 * Author:                   Logan Wright
 * Date Created:             12/01/2014
-* Last Modification Date:   12/XX/2014
-* Lab Number:               CST 229 Lab 2
+* Last Modification Date:   01/20/2015
+* Lab Number:               CST 320 Lab 1
 * Filename:                 StateMachine.h
 *
 * Overview:
-*   This program is an extension to Lab 1's state machine.
-*   It tokenizes a text file containing programming
-*   language code (C++ in this case), and identifies each
-*   token as a symbol, operator, keyword, identifier, etc.
-*   A token may not match any expected type, in which case
-*   it will be marked as invalid.
+*   A state machine for loading language text files and
+*   creating transition maps to identify whether a string
+*   of text fits a language.
 *
 * Input:
-*   The user must provide a text file name containing
-*   the program code, such as: code1.txt
+*   None.
 *
 * Output:
-*   The program will analyze the file and display all
-*   tokens found with a description.
-*
-*       Example:    Token               Token Type
-*                   for                 Keyword
-*                   while               Keyword
-*                   _test               Identifier
-*                   @                   Invalid
-*                   12                  Integer
+*   None.
 ************************************************************/
 
 #pragma once
@@ -42,14 +30,13 @@ class StateMachine
         ~StateMachine();
 
         /**********************************************************************
-        *	Tokenizer::TokenType GetTokenType(std::string token);
+        *   Tokenizer::TokenType GetTokenType(std::string token)
         *
-        *	  	Purpose:	Gets the TokenType that represents the given std::string.
+        *      Purpose: Gets the TokenType that represents the given std::string.
         *
-        *		Entry:		A std::string token.
+        *		 Entry:	A std::string token.
         *
-        *		Exit:		A TokenType enum.
-        *
+        *		  Exit:	A TokenType enum.
         ***********************************************************************/
 
         Tokenizer::TokenType getTokenType(std::string token);
@@ -57,32 +44,31 @@ class StateMachine
     private:
 
         /**********************************************************************
-        *	bool Isstd::stringValid(std::string token);
+        *	bool Isstd::stringValid(std::string token)
         *
-        *		Purpose:	Validates a std::string against the loaded language.
+        *      Purpose: Validates a std::string against the loaded language.
         *
-        *		Entry:		A std::string token.
+        *		 Entry:	A std::string token.
         *
-        *		Exit:		a boolean for whether input std::string satisfies machine
-        *					algorithm loaded into program.
+        *		  Exit:	a boolean for whether input std::string satisfies machine
+        *				algorithm loaded into program.
         *
-        *	void ResetStateMachine();
+        *	void ResetStateMachine()
         *
-        *	  	Purpose:	Purges transition tables and variables.
+        *	   Purpose:	Purges transition tables and variables.
         *
-        *		Entry:		none.
+        *		 Entry:	None.
         *
-        *		Exit:		None.
+        *		  Exit:	None.
         *
-        *	void PrepareStateMachine(std::string fileName);
+        *	void PrepareStateMachine(std::string fileName)
         *
-        *	  	Purpose:	Translates a machine definition into algorithms.
+        *	   Purpose:	Translates a machine definition into algorithms.
         *
-        *		Entry:		The filename of the language definition file to
-        *					load.
+        *		 Entry:	The filename of the language definition file to
+        *				load.
         *
-        *		Exit:		none.
-        *
+        *		  Exit:	None.
         ***********************************************************************/
 
         bool isStringValid(std::string token);

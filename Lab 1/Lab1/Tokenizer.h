@@ -1,32 +1,18 @@
 /***********************************************************
 * Author:                   Logan Wright
-* Date Created:             12/01/2014
-* Last Modification Date:   12/XX/2014
-* Lab Number:               CST 229 Lab 2
+* Date Created:             01/16/2015
+* Last Modification Date:   01/20/2015
+* Lab Number:               CST 320 Lab 1
 * Filename:                 Tokenizer.h
 *
 * Overview:
-*   This program is an extension to Lab 1's state machine.
-*   It tokenizes a text file containing programming
-*   language code (C++ in this case), and identifies each
-*   token as a symbol, operator, keyword, identifier, etc.
-*   A token may not match any expected type, in which case
-*   it will be marked as invalid.
+*   Tokenizes a code file using C++ token types.
 *
 * Input:
-*   The user must provide a text file name containing
-*   the program code, such as: code1.txt
+*   None.
 *
 * Output:
-*   The program will analyze the file and display all
-*   tokens found with a description.
-*
-*       Example:    Token               Token Type
-*                   for                 Keyword
-*                   while               Keyword
-*                   _test               Identifier
-*                   @                   Invalid
-*                   12                  Integer
+*   None.
 ************************************************************/
 
 #pragma once
@@ -63,22 +49,50 @@ class Tokenizer
                 Token(size_t pos, TokenType type, std::string value);
                 ~Token();
 
-                // Returns start position of token in line
+                /**********************************************************************
+                *   size_t Tokenizer::Token::pos()
+                *
+                *      Purpose: Returns the position relative to beginning of
+                *               tokenized line.
+                *
+                *        Entry: None.
+                *
+                *         Exit: A size_t position in originating line of code text
+                *               file.
+                *
+                *   void Tokenizer::Token::setType(Tokenizer::TokenType type)
+                *
+                *      Purpose: Sets the token type.
+                *
+                *        Entry: A TokenType value.
+                *
+                *         Exit: None.
+                *
+                *   Tokenizer::TokenType Tokenizer::Token::type()
+                *
+                *      Purpose: Returns the TokenType.
+                *
+                *        Entry: None.
+                *
+                *         Exit: A TokenType value.
+                *
+                *   std::string Tokenizer::Token::value()
+                *
+                *      Purpose: Returns the token value.
+                *
+                *        Entry: None.
+                *
+                *         Exit: A std::string.
+                ***********************************************************************/
+
                 size_t pos();
-
-                // Sets token type
                 void setType(Tokenizer::TokenType type);
-
-                // Returns token type
                 TokenType type();
-
-                // Returns token value
                 std::string value();
 
             private:
 
                 // Start position of token in line
-                // Used by preprocessor mainly
                 size_t _pos;
 
                 // Type of token
@@ -93,34 +107,33 @@ class Tokenizer
         ~Tokenizer();
 
         /**********************************************************************
-        * vector<pair<string, TokenType>> Tokenize(string inStr);
+        *   vector<pair<string, TokenType>> Tokenize(string inStr)
         *
-        * Purpose: This function takes an input string, which ordinarily
-        * will be a line from a file, and splits it into tokens.
+        *      Purpose: This function takes an input string, which ordinarily
+        *               will be a line from a file, and splits it into tokens.
         *
-        * Entry: inStr is a line of text containing keywords, identifiers,
-        * and other C++ language components.
+        *        Entry: inStr is a line of text containing keywords, identifiers,
+        *               and other C++ language components.
         *
-        * Exit: A vector containing pairs of token strings and TokenType
-        * enums.
+        *         Exit: A vector containing pairs of token strings and TokenType
+        *               enums.
         *
-        * string EnumToString(TokenType type);
+        *   string EnumToString(TokenType type)
         *
-        * Purpose: This function is mainly for debug purposes. It prints
-        * the enum TokenType as a string representation.
+        *      Purpose: This function is mainly for debug purposes. It prints
+        *               the enum TokenType as a string representation.
         *
-        * Entry: A TokenType.
+        *        Entry: A TokenType.
         *
-        * Exit: A string representation of the TokenType.
+        *         Exit: A string representation of the TokenType.
         *
-        * pair<string, TokenType> GetPair(string inToken);
+        *   pair<string, TokenType> GetPair(string inToken)
         *
-        * Purpose: Turns a string token into a string-TokenType pair.
+        *      Purpose: Turns a string token into a string-TokenType pair.
         *
-        * Entry: A string token.
+        *        Entry: A string token.
         *
-        * Exit: A new string-TokenType pair.
-        *
+        *         Exit: A new string-TokenType pair.
         ***********************************************************************/
 
         std::vector<Token> tokenize(std::string inStr);

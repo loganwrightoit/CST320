@@ -4,13 +4,14 @@
 /* comment */while /*comment*/(true)
 {
     int x /* some more comments */= 4f;
-    float y = 1.0F;
+    float y = MY_SYMBOL;
     
     /*
         This is a multiline comment
         So see if it's there or whether
         it crashes
     */
+    string test = "Hi there dude";
     
     continue;
 }

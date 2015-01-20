@@ -30,12 +30,8 @@ class Symbol
         enum Type
         {
             Bool,
-            Char,
-            Short,
             Int,
-            Long,
             Float,
-            Double,
             String
         };
 

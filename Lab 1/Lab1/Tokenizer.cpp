@@ -110,26 +110,40 @@ Tokenizer::~Tokenizer()
 *			will be a line from a file, and splits it into tokens.
 *
 ***************************************************************/
-std::vector<std::pair<std::string, Tokenizer::TokenType>> Tokenizer::tokenize(std::string inStr)
+std::vector<Tokenizer::Token> Tokenizer::tokenize(std::string inStr)
 {
-    std::vector<std::pair<std::string, TokenType>> tokens;
+    std::vector<Token> tokens;
     size_t pos = 0, prev = 0;
 
-    // Add new-line at end of string to make tokenizing last piece easier
+    // Add new-line at end of string to make tokenizing last line simpler
     inStr.append("\n");
 
     while ((pos = inStr.find_first_of(delimiters, prev)) != std::string::npos)
     {
+        // Add whole token types
         if (pos != prev)
         {
-            tokens.push_back(Tokenizer::getPair(inStr.substr(prev, pos - prev)));
+            tokens.push_back(Tokenizer::getToken(prev, inStr.substr(prev, pos - prev)));
         }
 
-        // If position is before symbol, add it
-        auto iter = tokenMatcher.find(inStr.substr(pos, 1));
-        if (iter != tokenMatcher.end())
+        // If position is before defined symbol, add it
+        std::string symbol = inStr.substr(pos, 1);
+        if (tokenMatcher.find(symbol) != tokenMatcher.end())
         {
-            tokens.push_back(Tokenizer::getPair(iter->first));
+            // If position is before String declarator, add symbols and string and adjust position in line
+            if (symbol == "\"")
+            {
+                size_t endPos = inStr.find_first_of("\"", pos + 1);
+                tokens.push_back(Tokenizer::getToken(pos, inStr.substr(pos, 1)));
+                tokens.push_back(Token(pos + 1, TokenType::String, inStr.substr(pos + 1, endPos - pos - 1)));
+                tokens.push_back(Tokenizer::getToken(endPos, inStr.substr(endPos, 1)));
+                prev = pos = endPos + 1;
+                continue;
+            }
+            else
+            {
+                tokens.push_back(Tokenizer::getToken(pos, symbol));
+            }            
         }
 
         prev = pos + 1;
@@ -141,21 +155,21 @@ std::vector<std::pair<std::string, Tokenizer::TokenType>> Tokenizer::tokenize(st
 /**************************************************************
 *   Entry:  A string token.
 *
-*    Exit:  A new string-TokenType pair.
+*    Exit:  A Token object.
 *
-* Purpose:  Turns a string token into a string-TokenType pair.
+* Purpose:  Turns a string token into a Token object.
 *
 ***************************************************************/
-std::pair<std::string, Tokenizer::TokenType> Tokenizer::getPair(std::string inToken)
+Tokenizer::Token Tokenizer::getToken(size_t pos, std::string inToken)
 {
     auto iter = tokenMatcher.find(inToken);
     if (iter != tokenMatcher.end())
     {
-        return std::make_pair(inToken, iter->second);
+        return Token(pos, iter->second, inToken);
     }
     else
     {
-        return std::make_pair(inToken, Invalid);
+        return Token(pos, Invalid, inToken);
     }
 }
 
@@ -186,6 +200,8 @@ std::string Tokenizer::enumToString(TokenType type)
             return "Operator";
         case Boolean:
             return "Boolean";
+        case String:
+            return "String";
         default:
             return "Invalid";
     }

@@ -1,6 +1,8 @@
 #pragma once
 
-#include <string>
+#include "SymbolTable.h" // Includes Symbol.h
+
+//#include <string>
 
 class Preprocessor
 {
@@ -25,23 +27,31 @@ class Preprocessor
 
     private:
 
+        // Tests whether line starts with given token
+        bool stringStartsWith(std::string line, std::string token);
+
         // Removes comments from line and returns new line
         std::string cleanComments(std::string line);
+
+        // Replaces symbols in line
+        std::string Preprocessor::replaceSymbols(std::string line);
+
+        // Handles directives
+        void Preprocessor::processDirective(std::string line);
 
         // Gets directive of line
         Directive getDirective(std::string token);
 
         // Indicates preprocessor is within a comment block
-        bool inCommentBlock;
+        bool inCommentBlock = false;
 
-        // Indicates preprocessor is within a conditional block
-        bool inConditional;
+        // Indicates a line without a directive needs to be emptied
+        bool emptyLine = false;
 
-        // Indicates conditional block is satisfied, ignore everything until #endif
-        bool satisfiedConditional;
+        // Whether preprocessor should handle next #else directive
+        bool doElse = false;
 
-        // Indicates conditional block should be ignored, continue until new directive
-        bool skipBlock;
+        SymbolTable symbolTable;
 
 };
 

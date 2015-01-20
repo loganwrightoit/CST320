@@ -1,5 +1,4 @@
-Directive #define #ifndef #ifdef #else #endif
-CharSymbol ! ( ) [ ] { } : ; " '
+CharSymbol ! ( ) [ ] { } : ; "
 Operator % * + - / < = >
 Boolean true false
 Keyword int float char string bool switch case default if else while do continue break void return

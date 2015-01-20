@@ -42,7 +42,6 @@ class Tokenizer
         enum TokenType
         {
             start,
-            Directive,
             Integer,
             Float,
             Keyword,
@@ -50,8 +49,43 @@ class Tokenizer
             CharSymbol,
             Operator,
             Boolean,
+            String,
             Invalid,
             end
+        };
+
+        class Token
+        {
+
+            public:
+
+                Token(size_t pos, TokenType type, std::string value);
+                ~Token();
+
+                // Returns start position of token in line
+                size_t pos();
+
+                // Sets token type
+                void setType(Tokenizer::TokenType type);
+
+                // Returns token type
+                TokenType type();
+
+                // Returns token value
+                std::string value();
+
+            private:
+
+                // Start position of token in line
+                // Used by preprocessor mainly
+                size_t _pos;
+
+                // Type of token
+                TokenType _type;
+
+                // Value of token
+                std::string _value;
+
         };
 
         Tokenizer();
@@ -88,14 +122,14 @@ class Tokenizer
         *
         ***********************************************************************/
 
-        std::vector<std::pair<std::string, TokenType>> tokenize(std::string inStr);
-        std::pair<std::string, TokenType> getPair(std::string inToken);
+        std::vector<Token> tokenize(std::string inStr);
+        Token getToken(size_t pos, std::string inToken);
 
         std::string enumToString(TokenType type);
 
     private:
 
-        // Contains string tokens that are common to language, with an associated TokenType.
+        // Contains predefined string tokens that are common to language, with an associated TokenType.
         std::map<std::string, Tokenizer::TokenType> tokenMatcher;
 
         // Used to split code strings and discover tokens in language files

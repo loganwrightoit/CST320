@@ -27,6 +27,7 @@
 #include <vector>
 #include <fstream>
 #include <string>
+#include <iomanip>
 
 using namespace std;
 
@@ -34,16 +35,16 @@ using namespace std;
 std::ifstream file;
 
 // Tokenizer object
-Tokenizer tokenizer;
+static Tokenizer tokenizer;
 
 // Preprocessor object
-Preprocessor preprocessor;
+static Preprocessor preprocessor;
 
 // State machine object
-StateMachine stateMachine;
+static StateMachine stateMachine;
 
 // Stores token and type
-std::vector<std::pair<std::string, Tokenizer::TokenType>> tokens;
+std::vector<Tokenizer::Token> tokens;
 
 //
 //  Main program thread.
@@ -69,19 +70,17 @@ int main(int argc, char* argv[])
     while (std::getline(file, line))
     {
         line = preprocessor.run(line);
-        cout << line << endl;
-    }
-
-        /*
+        
+        
         // Create TokenType pairs with preprocessed line
-        auto result = tokenizer.tokenize(preprocessor.getResult(line));
+        auto result = tokenizer.tokenize(line);
         auto iter = result.begin();
         while (iter != result.end())
         {
-            if (iter->second == tokenizer.Invalid)
+            if (iter->type() == tokenizer.Invalid)
             {
                 // Attempt to match token using language files
-                iter->second = stateMachine.GetTokenType(iter->first);
+                iter->setType(stateMachine.getTokenType(iter->value()));
             }
 
             // Store token and type pair
@@ -96,10 +95,9 @@ int main(int argc, char* argv[])
     auto iter = tokens.begin();
     while (iter != tokens.end())
     {
-        cout << setw(20) << iter->first << setw(25) << tokenizer.enumToString(iter->second) << endl;
+        cout << setw(20) << iter->value() << setw(25) << tokenizer.enumToString(iter->type()) << endl;
         ++iter;
     }
-    */
 
     return 0;
 }

@@ -91,5 +91,14 @@ class Parser
         // FACTOR → ( EXPRESSION ) | - FACTOR | + FACTOR | Identifier | TYPE
         bool factor();
 
+        // Helper function that returns true if equality exists, while also incrementing iterator
+        bool isNextType(Tokenizer::TokenType type);
+
+        // Helper function that returns true if equality exists, while also incrementing iterator
+        bool isNextValue(char* input);
+
+        // Stores current position in tokens vector
+        std::vector<Tokenizer::Token>::iterator pos;
+
 };
 

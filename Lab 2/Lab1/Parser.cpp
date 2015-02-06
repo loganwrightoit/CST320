@@ -25,15 +25,59 @@ Parser::~Parser()
 {
 }
 
+bool Parser::isNextType(Tokenizer::TokenType type)
+{
+    if (type == (pos + 1)->type)
+    {
+        ++pos;
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+bool Parser::isNextValue(char* input)
+{
+    if (input == (pos + 1)->value)
+    {
+        ++pos;
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
 bool Parser::parse(std::vector<Tokenizer::Token> tokens)
 {
-    
-    return true;
+    pos = tokens.begin();
+
+    // Assume int main() { COMPOUND_STMT } comes first
+    return function();
 }
 
 // FUNCTION → TYPE Identifier ( ARG_LIST ) COMPOUND_STMT
 bool Parser::function()
 {
+    if (type())
+    {
+        if (isNextType(Tokenizer::Identifier))
+        {
+            if (isNextValue("("))
+            {
+                if (arg_list())
+                {
+                    if (isNextValue(")"))
+                    {
+                        return compound_stmt();
+                    }
+                }
+            }
+        }
+    }
 
     return false;
 }

@@ -46,7 +46,7 @@ class Parser
         // DECLARATION → TYPE IDENT_LIST ;
         bool declaration();
 
-        // TYPE → int | float
+        // TYPE → int | float | string | true | false
         bool type();
 
         // IDENT_LIST → Identifier , IDENT_LIST Identifier

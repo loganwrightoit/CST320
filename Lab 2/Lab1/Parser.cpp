@@ -16,6 +16,8 @@
 ************************************************************/
 
 #include "Parser.h"
+#include <iostream>
+using namespace std;
 
 Parser::Parser()
 {
@@ -43,6 +45,8 @@ void Parser::save()
 // Restores position and returns false;
 bool Parser::failure()
 {
+    cout << "[DEBUG]: Parser failed at token: " << pos->value().c_str() << ", at position: " << pos->pos() << endl;
+
     pos = lastPos;
     return false;
 }
@@ -170,10 +174,10 @@ bool Parser::declaration()
     return failure();
 }
 
-// TYPE → int | float
+// TYPE → int | float | string | true | false
 bool Parser::type()
 {
-    if (pos->type() == Tokenizer::Integer || pos->type() == Tokenizer::Float)
+    if (equals("int") || equals("float") || equals("true") || equals("false") || equals("string"))
     {
         ++pos;
         return true;

@@ -27,75 +27,146 @@ Parser::~Parser()
 
 bool Parser::parse(std::vector<Tokenizer::Token> tokens)
 {
-
-
+    
     return true;
 }
 
-/*
-    FUNCTION	  →   TYPE Identifier ( ARG_LIST ) COMPOUND_STMT
-    --------------------------------------------------
-    ARG_LIST	  →	  ARG
-                    | ARG_LIST , ARG
-    --------------------------------------------------
-    ARG           →	  TYPE Identifier
-    --------------------------------------------------
-    DECLARATION	  →	  TYPE IDENT_LIST ;
-    --------------------------------------------------
-    TYPE	      →   Integer
-                    | Float
-    --------------------------------------------------
-    IDENT_LIST	  →	  Identifier , IDENT_LIST Identifier
-    --------------------------------------------------
-    STATEMENT	  →	  FOR_STMT
-                    | WHILE_STMT
-                    | EXPRESSION ;
-                    | IF_STMT
-                    | COMPOUND_STMT
-                    | DECLARATION
-                    | ;
-    --------------------------------------------------
-    FOR_STMT	  →	  for ( EXPRESSION ; OPT_EXPR ; OPT_EXPR ) STATEMENT
-    --------------------------------------------------
-    OPT_EXPR	  →	  EXPRESSION
-                    | λ
-    --------------------------------------------------
-    WHILE_STMT    →   while ( EXPRESSION ) STATEMENT
-    --------------------------------------------------
-    IF_STMT	      →	  if ( EXPRESSION ) STATEMENT ELSEPART
-    --------------------------------------------------
-    ELSEPART	  →	  else STATEMENT
-                    | λ
-    --------------------------------------------------
-    COMPOUND_STMT →	  { STMT_LIST }
-    --------------------------------------------------
-    STMT_LIST	  →	  STMT_LIST STATEMENT
-                    | λ
-    --------------------------------------------------
-    EXPRESSION	  →	  Identifier = EXPRESSION
-                    | RVALUE
-    --------------------------------------------------
-    RVALUE	      →   RVALUE COMPARE MAG
-                    | MAG
-    --------------------------------------------------
-    COMPARE	      →   ==
-                    | <
-                    | >
-                    | <=
-                    | >=
-                    | !=
-    --------------------------------------------------
-    MAG	          →   MAG + TERM
-                    | MAG - TERM
-                    | TERM
-    --------------------------------------------------
-    TERM	      →	  TERM * FACTOR
-                    | TERM / FACTOR
-                    | FACTOR
-    --------------------------------------------------
-    FACTOR	      →	  ( EXPRESSION )
-                    | - FACTOR
-                    | + FACTOR
-                    | Identifier
-                    | TYPE
-*/
+// FUNCTION → TYPE Identifier ( ARG_LIST ) COMPOUND_STMT
+bool Parser::function()
+{
+
+    return false;
+}
+
+// ARG_LIST → ARG | ARG_LIST , ARG
+bool Parser::arg_list()
+{
+
+    return false;
+}
+
+// ARG → TYPE Identifier
+bool Parser::arg()
+{
+
+    return false;
+}
+
+// DECLARATION → TYPE IDENT_LIST ;
+bool Parser::declaration()
+{
+
+    return false;
+}
+
+// TYPE → int | float
+bool Parser::type()
+{
+
+    return false;
+}
+
+// IDENT_LIST → Identifier , IDENT_LIST Identifier
+bool Parser::ident_list()
+{
+
+    return false;
+}
+
+// STATEMENT → FOR_STMT | WHILE_STMT | EXPRESSION ; | IF_STMT | COMPOUND_STMT | DECLARATION | ;
+bool Parser::statement()
+{
+
+    return false;
+}
+
+// FOR_STMT → for ( EXPRESSION ; OPT_EXPR ; OPT_EXPR ) STATEMENT
+bool Parser::for_stmt()
+{
+
+    return false;
+}
+
+// OPT_EXPR → EXPRESSION | λ
+bool Parser::opt_expr()
+{
+
+    return false;
+}
+
+// WHILE_STMT → while ( EXPRESSION ) STATEMENT
+bool Parser::while_stmt()
+{
+
+    return false;
+}
+
+// IF_STMT → if ( EXPRESSION ) STATEMENT ELSEPART
+bool Parser::if_stmt()
+{
+
+    return false;
+}
+
+// ELSEPART → else STATEMENT | λ
+bool Parser::elsepart()
+{
+
+    return false;
+}
+
+// COMPOUND_STMT → { STMT_LIST }
+bool Parser::compound_stmt()
+{
+
+    return false;
+}
+
+// STMT_LIST → STMT_LIST STATEMENT | λ
+bool Parser::stmt_list()
+{
+
+    return false;
+}
+
+// EXPRESSION → Identifier = EXPRESSION | RVALUE
+bool Parser::expression()
+{
+
+    return false;
+}
+
+// RVALUE → RVALUE COMPARE MAG | MAG
+bool Parser::rvalue()
+{
+
+    return false;
+}
+
+// COMPARE → == | < | > | <= | >= | !=
+bool Parser::compare()
+{
+
+    return false;
+}
+
+// MAG → MAG + TERM | MAG - TERM | TERM
+bool Parser::mag()
+{
+
+    return false;
+}
+
+// TERM → TERM * FACTOR | TERM / FACTOR | FACTOR
+bool Parser::term()
+{
+
+    return false;
+}
+
+// FACTOR → ( EXPRESSION ) | - FACTOR | + FACTOR | Identifier | TYPE
+bool Parser::factor()
+{
+
+    return false;
+}

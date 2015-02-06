@@ -6,21 +6,20 @@
 * Filename:                 Main.cpp
 *
 * Overview:
-*   A lexical analyzer and preprocessor used to remove
-*   comments and replace preprocessor directives from a
-*   code file based in C++.
+*   A lexical analyzer, preprocessoer, and parser used to
+*   process a C++ style language.
 *
 * Input:
 *   User inputs name of a text file containing C++ code.
 *
 * Output:
-*   Prints code lines to console with comments and directives
-*   stripped out, and symbols replaced.
+*   Prints results of tokenizer and parse result.
 ************************************************************/
 
 #include "Tokenizer.h"
 #include "Preprocessor.h"
 #include "StateMachine.h"
+#include "Parser.h"
 
 #include <iostream>
 #include <vector>
@@ -45,9 +44,13 @@ static StateMachine stateMachine;
 // Stores token and type
 std::vector<Tokenizer::Token> tokens;
 
+// Parser object
+static Parser parser;
+
 //
 // Forward declarations
 //
+void parseTokens();
 void printTokens();
 
 //
@@ -87,9 +90,24 @@ int main(int argc, char* argv[])
         }
     }
 
+    parseTokens();
+
     printTokens();
 
     return 0;
+}
+
+/**************************************************************
+*   Entry:  None.
+*
+*    Exit:  None.
+*
+* Purpose:  Parses tokens contained in global token vector.
+***************************************************************/
+void parseTokens()
+{
+    bool result = parser.parse(tokens);
+    cout << "[PARSER]: Parse result: " << (result ? "SUCCESS" : "FAILURE") << endl;
 }
 
 /**************************************************************

@@ -49,7 +49,7 @@ class Parser
         // TYPE → int | float | string | true | false
         bool type();
 
-        // IDENT_LIST → Identifier , IDENT_LIST Identifier
+        // IDENT_LIST → Identifier , IDENT_LIST Identifier | λ
         bool ident_list();
 
         // STATEMENT → FOR_STMT | WHILE_STMT | EXPRESSION ; | IF_STMT | COMPOUND_STMT | DECLARATION | ;
@@ -109,20 +109,11 @@ class Parser
         // Helper function that returns true if equality exists at current position, incrementing iterator if true
         bool equals(char* input);
 
-        // Returns true.
-        bool success();
-
-        // Restores position and returns false;
-        bool failure();
-
-        // Saves position
-        void save();
+        bool S();
+        bool A();
 
         // Stores current position in tokens vector
-        std::vector<Tokenizer::Token>::iterator pos;
-
-        // Temporary object for position
-        std::vector<Tokenizer::Token>::iterator lastPos;
+        std::vector<Tokenizer::Token>::iterator token, end;
 
 };
 

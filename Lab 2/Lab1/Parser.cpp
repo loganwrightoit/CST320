@@ -31,6 +31,11 @@ bool Parser::equals(Tokenizer::TokenType type)
 {
     if (type == token->type())
     {
+        if ((token + 1) == end)
+        {
+            return true;
+        }
+
         ++token;
         return true;
     }
@@ -42,6 +47,11 @@ bool Parser::equals(char* input)
 {
     if (input == token->value())
     {
+        if ((token + 1) == end)
+        {
+            return true;
+        }
+
         ++token;
         return true;
     }

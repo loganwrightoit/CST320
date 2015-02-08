@@ -158,7 +158,7 @@ bool Parser::arg_list2()
     if (equals(","))
     {
         debug("ARG_LIST2 -> ,");
-        if (++token == end) { return false; }
+        if (token == end) { return false; }
         if (arg())
         {
             debug("ARG_LIST2 -> , ARG");

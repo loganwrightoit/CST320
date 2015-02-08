@@ -21,7 +21,7 @@ using namespace std;
 
 Parser::Parser()
 {
-    doDebug = false;
+    doDebug = true;
 }
 
 Parser::~Parser()
@@ -262,7 +262,7 @@ bool Parser::ident_list()
 
     if (equals(Tokenizer::Identifier))
     {
-        debug("IDENT_LIST -> Identifier |");
+        debug("IDENT_LIST -> Identifier");
         if (token == end) { return false; }
         if (ident_list2())
         {
@@ -275,40 +275,35 @@ bool Parser::ident_list()
     return false;
 }
 
-// IDENT_LIST2 → IDENT_LIST3 | = RVALUE IDENT_LIST3
+// IDENT_LIST2 → = EXPRESSION IDENT_LIST3 | IDENT_LIST3
 bool Parser::ident_list2()
 {
-    if (token == end)
-    {
-        debug("IDENT_LIST2 -> lambda");
-        return true;
-    }
+    if (token == end) { return false; }
     auto temp = token;
 
-    if (ident_list3())
-    {
-        debug("IDENT_LIST2 -> IDENT_LIST3");
-        return true;
-    }
-    else if (equals("="))
+    if (equals("="))
     {
         debug("IDENT_LIST2 -> =");
         if (token == end) { return false; }
-        if (rvalue())
+        if (expression())
         {
-            debug("IDENT_LIST2 -> = RVALUE");
+            debug("IDENT_LIST2 -> = EXPRESSION");
             if (token == end) { return false; }
             if (ident_list3())
             {
-                debug("IDENT_LIST2 -> = RVALUE IDENT_LIST3");
+                debug("IDENT_LIST2 -> = EXPRESSION IDENT_LIST3");
                 return true;
             }
         }
     }
+    else if (ident_list3())
+    {
+        debug("IDENT_LIST2 -> IDENT_LIST3");
+        return true;
+    }
 
-    debug("IDENT_LIST2 -> lambda");
     token = temp;
-    return true; // λ
+    return false;
 }
 
 // IDENT_LIST3 → , IDENT_LIST | λ

@@ -52,7 +52,7 @@ class Parser
         // IDENT_LIST → Identifier IDENT_LIST2
         bool ident_list();
 
-        // IDENT_LIST2 → IDENT_LIST3 | = RVALUE IDENT_LIST3
+        // IDENT_LIST2 → = EXPRESSION IDENT_LIST3 | IDENT_LIST3
         bool ident_list2();
 
         // IDENT_LIST3 → , IDENT_LIST | λ

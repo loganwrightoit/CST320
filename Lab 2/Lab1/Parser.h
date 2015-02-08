@@ -46,11 +46,14 @@ class Parser
         // DECLARATION → TYPE IDENT_LIST ;
         bool declaration();
 
-        // TYPE → int | float | string | bool
+        // TYPE → int | float | bool | string
         bool type();
 
-        // IDENT_LIST → Identifier , IDENT_LIST | Identifier
+        // IDENT_LIST → Identifier IDENT_LIST2
         bool ident_list();
+
+        // IDENT_LIST2 → , IDENT_LIST | λ
+        bool ident_list2();
 
         // STATEMENT → FOR_STMT | WHILE_STMT | EXPRESSION ; | IF_STMT | COMPOUND_STMT | DECLARATION | ;
         bool statement();
@@ -76,7 +79,7 @@ class Parser
         // STMT_LIST → STATEMENT STMT_LIST | λ
         bool stmt_list();
 
-        // EXPRESSION → Identifier = EXPRESSION | RVALUE
+        // EXPRESSION → Identifier = EXPRESSION | RVALUE | true | 1
         bool expression();
 
         // RVALUE → MAG RVALUE2

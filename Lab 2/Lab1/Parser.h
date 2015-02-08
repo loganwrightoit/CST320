@@ -82,7 +82,7 @@ class Parser
         // STMT_LIST → STATEMENT STMT_LIST | λ
         bool stmt_list();
 
-        // EXPRESSION → Identifier = EXPRESSION | RVALUE | true | 1
+        // EXPRESSION → RVALUE | true | Identifier = EXPRESSION
         bool expression();
 
         // RVALUE → MAG RVALUE2
@@ -123,6 +123,9 @@ class Parser
 
         // Stores current position in tokens vector
         std::vector<Tokenizer::Token>::iterator token, end;
+
+        // Stores parsed elements in LIFO container for output after parsing
+        //std::stack<char*> results;
 
 };
 

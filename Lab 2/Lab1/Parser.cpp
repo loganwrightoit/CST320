@@ -615,13 +615,23 @@ bool Parser::stmt_list()
     return true; // λ
 }
 
-// EXPRESSION → Identifier = EXPRESSION | RVALUE | true | 1
+// EXPRESSION → RVALUE | true | Identifier = EXPRESSION
 bool Parser::expression()
 {
     if (token == end) { return false; }
     auto temp = token;
-
-    if (equals(Tokenizer::Identifier))
+    
+    if (rvalue())
+    {
+        debug("EXPRESSION -> RVALUE");
+        return true;
+    }
+    else if (equals("true"))
+    {
+        debug("EXPRESSION -> true");
+        return true;
+    }
+    else if (equals(Tokenizer::Identifier))
     {
         debug("EXPRESSION -> Identifier");
         if (token == end) { return false; }
@@ -635,21 +645,6 @@ bool Parser::expression()
                 return true;
             }
         }
-    }
-    else if (rvalue())
-    {
-        debug("EXPRESSION -> RVALUE");
-        return true;
-    }
-    else if (equals("true"))
-    {
-        debug("EXPRESSION -> true");
-        return true;
-    }
-    else if (equals("1"))
-    {
-        debug("EXPRESSION -> 1");
-        return true;
     }
 
     token = temp;

@@ -61,7 +61,7 @@ class Parser
         // STATEMENT → FOR_STMT | WHILE_STMT | EXPRESSION ; | IF_STMT | COMPOUND_STMT | DECLARATION | ;
         bool statement();
 
-        // FOR_STMT → for ( EXPRESSION ; OPT_EXPR ; OPT_EXPR ) STATEMENT
+        // FOR_STMT → for ( DECLARATION OPT_EXPR ; OPT_EXPR ) STATEMENT
         bool for_stmt();
 
         // OPT_EXPR → EXPRESSION | λ

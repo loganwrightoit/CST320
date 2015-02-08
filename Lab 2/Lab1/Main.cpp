@@ -76,8 +76,14 @@ int main(int argc, char* argv[])
     std::string line;
     while (std::getline(file, line))
     {
+        size_t initLen = line.length();
         line = preprocessor.run(line);
-        cout << line << endl;
+
+        // Avoid printing lines preprocessed to empty strings
+        if (line.length() >= initLen)
+        {
+            cout << line << endl;
+        }
 
         // Create TokenType pairs with preprocessed line
         auto result = tokenizer.tokenize(line);
@@ -107,7 +113,7 @@ int main(int argc, char* argv[])
 void parseTokens()
 {
     bool result = parser.parse(tokens);
-    cout << "[PARSER]: Parse result: " << (result ? "SUCCESS" : "FAILURE") << endl;
+    cout << "\n[PARSER]: " << (result ? "SUCCESS" : "FAILURE") << endl;
 }
 
 /**************************************************************
@@ -120,12 +126,12 @@ void parseTokens()
 ***************************************************************/
 void printTokens()
 {
-    cout << endl << right << setw(20) << "Token" << setw(25) << "Token Type" << endl;
+    cout << endl << right << setw(20) << "Token" << setw(20) << "Token Type" << endl;
     cout << setw(40) << setfill('-') << "-" << setfill(' ') << endl;
     auto iter = tokens.begin();
     while (iter != tokens.end())
     {
-        cout << setw(20) << iter->value() << setw(25) << tokenizer.enumToString(iter->type()) << endl;
+        cout << setw(20) << iter->value() << setw(20) << tokenizer.enumToString(iter->type()) << endl;
         ++iter;
     }
 }

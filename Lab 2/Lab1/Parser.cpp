@@ -21,7 +21,7 @@ using namespace std;
 
 Parser::Parser()
 {
-    doDebug = true;
+    doDebug = false;
 }
 
 Parser::~Parser()
@@ -383,7 +383,7 @@ bool Parser::statement()
     return false;
 }
 
-// FOR_STMT → for ( EXPRESSION ; OPT_EXPR ; OPT_EXPR ) STATEMENT
+// FOR_STMT → for ( DECLARATION OPT_EXPR ; OPT_EXPR ) STATEMENT
 bool Parser::for_stmt()
 {
     if (token == end) { return false; }
@@ -397,35 +397,29 @@ bool Parser::for_stmt()
         {
             debug("FOR_STMT -> for (");
             if (token == end) { return false; }
-            if (expression())
+            if (declaration())
             {
-                debug("FOR_STMT -> for ( EXPRESSION");
-                if (token == end) { return false; }
-                if (equals(";"))
+                debug("FOR_STMT -> for ( DECLARATION");
+                if (opt_expr())
                 {
-                    debug("FOR_STMT -> for ( EXPRESSION ;");
+                    debug("FOR_STMT -> for ( DECLARATION ; OPT_EXPR");
                     if (token == end) { return false; }
-                    if (opt_expr())
+                    if (equals(";"))
                     {
-                        debug("FOR_STMT -> for ( EXPRESSION ; OPT_EXPR");
+                        debug("FOR_STMT -> for ( DECLARATION ; OPT_EXPR ;");
                         if (token == end) { return false; }
-                        if (equals(";"))
+                        if (opt_expr())
                         {
-                            debug("FOR_STMT -> for ( EXPRESSION ; OPT_EXPR ;");
+                            debug("FOR_STMT -> for ( DECLARATION ; OPT_EXPR ; OPT_EXPR");
                             if (token == end) { return false; }
-                            if (opt_expr())
+                            if (equals(")"))
                             {
-                                debug("FOR_STMT -> for ( EXPRESSION ; OPT_EXPR ; OPT_EXPR");
+                                debug("FOR_STMT -> for ( DECLARATION ; OPT_EXPR ; OPT_EXPR )");
                                 if (token == end) { return false; }
-                                if (equals(")"))
+                                if (statement())
                                 {
-                                    debug("FOR_STMT -> for ( EXPRESSION ; OPT_EXPR ; OPT_EXPR )");
-                                    if (token == end) { return false; }
-                                    if (statement())
-                                    {
-                                        debug("FOR_STMT -> for ( EXPRESSION ; OPT_EXPR ; OPT_EXPR ) STATEMENT");
-                                        return true;
-                                    }
+                                    debug("FOR_STMT -> for ( DECLARATION ; OPT_EXPR ; OPT_EXPR ) STATEMENT");
+                                    return true;
                                 }
                             }
                         }

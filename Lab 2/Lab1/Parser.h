@@ -34,7 +34,7 @@ class Parser
         // FUNCTION → TYPE Identifier ( ARG_LIST ) COMPOUND_STMT
         bool function();
 
-        // ARG_LIST → ARG ARG_LIST2
+        // ARG_LIST → ARG ARG_LIST2 | λ
         bool arg_list();
 
         // ARG_LIST2 → , ARG ARG_LIST2 | λ
@@ -46,10 +46,10 @@ class Parser
         // DECLARATION → TYPE IDENT_LIST ;
         bool declaration();
 
-        // TYPE → int | float | string | true | false
+        // TYPE → int | float | string | bool
         bool type();
 
-        // IDENT_LIST → Identifier , IDENT_LIST Identifier | λ
+        // IDENT_LIST → Identifier , IDENT_LIST | Identifier
         bool ident_list();
 
         // STATEMENT → FOR_STMT | WHILE_STMT | EXPRESSION ; | IF_STMT | COMPOUND_STMT | DECLARATION | ;

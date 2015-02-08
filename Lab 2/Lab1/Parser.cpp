@@ -21,10 +21,19 @@ using namespace std;
 
 Parser::Parser()
 {
+    doDebug = false;
 }
 
 Parser::~Parser()
 {
+}
+
+void Parser::debug(char* msg)
+{
+    if (doDebug)
+    {
+        cout << "[PARSER]: " << msg << " (" << (token - 1)->value().c_str() << ")" << endl;
+    }
 }
 
 bool Parser::equals(Tokenizer::TokenType type)
@@ -77,27 +86,27 @@ bool Parser::function()
     
     if (type())
     {
-        cout << "[DEBUG]: FUNCTION -> TYPE | " << token->value().c_str() << endl;
+        debug("FUNCTION -> TYPE");
         if (token == end) { return false; }
         if (equals(Tokenizer::Identifier))
         {
-            cout << "[DEBUG]: FUNCTION -> TYPE Identifier | " << token->value().c_str() << endl;
+            debug("FUNCTION -> TYPE Identifier");
             if (token == end) { return false; }
             if (equals("("))
             {
-                cout << "[DEBUG]: FUNCTION -> TYPE Identifier ( | " << token->value().c_str() << endl;
+                debug("FUNCTION -> TYPE Identifier (");
                 if (token == end) { return false; }
                 if (arg_list())
                 {
-                    cout << "[DEBUG]: FUNCTION -> TYPE Identifier ( ARG_LIST | " << token->value().c_str() << endl;
+                    debug("FUNCTION -> TYPE Identifier ( ARG_LIST");
                     if (token == end) { return false; }
                     if (equals(")"))
                     {
-                        cout << "[DEBUG]: FUNCTION -> TYPE Identifier ( ARG_LIST ) | " << token->value().c_str() << endl;
+                        debug("FUNCTION -> TYPE Identifier ( ARG_LIST )");
                         if (token == end) { return false; }
                         if (compound_stmt())
                         {
-                            cout << "[DEBUG]: FUNCTION -> TYPE Identifier ( ARG_LIST ) COMPOUND_STMT | " << token->value().c_str() << endl;
+                            debug("FUNCTION -> TYPE Identifier ( ARG_LIST ) COMPOUND_STMT");
                             return true;
                         }
                     }
@@ -115,23 +124,23 @@ bool Parser::arg_list()
 {
     if (token == end)
     {
-        cout << "[DEBUG]: ARG_LIST -> lamdba" << endl;
+        debug("ARG_LIST -> lambda");
         return true;
     }
     auto temp = token;
     
     if (arg())
     {
-        cout << "[DEBUG]: ARG_LIST -> ARG | " << token->value().c_str() << endl;
+        debug("ARG_LIST -> ARG");
         if (token == end) { return false; }
         if (arg_list2())
         {
-            cout << "[DEBUG]: ARG_LIST -> ARG ARG_LIST2 | " << token->value().c_str() << endl;
+            debug("ARG_LIST -> ARG ARG_LIST2");
             return true;
         }
     }
 
-    cout << "[DEBUG]: ARG_LIST -> lamdba" << endl;
+    debug("ARG_LIST -> lambda");
     token = temp;
     return true;
 }
@@ -141,28 +150,28 @@ bool Parser::arg_list2()
 {
     if (token == end)
     {
-        cout << "[DEBUG]: ARG_LIST2 -> lamdba" << endl;
+        debug("ARG_LIST2 -> lambda");
         return true;
     }
     auto temp = token;
     
     if (equals(","))
     {
-        cout << "[DEBUG]: ARG_LIST2 -> , | " << token->value().c_str() << endl;
+        debug("ARG_LIST2 -> ,");
         if (++token == end) { return false; }
         if (arg())
         {
-            cout << "[DEBUG]: ARG_LIST2 -> , ARG | " << token->value().c_str() << endl;
+            debug("ARG_LIST2 -> , ARG");
             if (token == end) { return false; }
             if (arg_list2())
             {
-                cout << "[DEBUG]: ARG_LIST2 -> , ARG ARG_LIST2 | " << token->value().c_str() << endl;
+                debug("ARG_LIST2 -> , ARG ARG_LIST2");
                 return true;
             }
         }
     }
 
-    cout << "[DEBUG]: ARG_LIST2 -> lamdba" << endl;
+    debug("ARG_LIST2 -> lambda");
     token = temp;
     return true; // λ
 }
@@ -175,11 +184,11 @@ bool Parser::arg()
 
     if (type())
     {
-        cout << "[DEBUG]: ARG -> TYPE | " << token->value().c_str() << endl;
+        debug("ARG -> TYPE");
         if (token == end) { return false; }
         if (equals(Tokenizer::Identifier))
         {
-            cout << "[DEBUG]: ARG -> TYPE Identifier | " << token->value().c_str() << endl;
+            debug("ARG -> TYPE Identifier");
             return true;
         }
     }
@@ -196,15 +205,15 @@ bool Parser::declaration()
 
     if (type())
     {
-        cout << "[DEBUG]: DECLARATION -> TYPE | " << token->value().c_str() << endl;
+        debug("DECLARATION -> TYPE");
         if (token == end) { return false; }
         if (ident_list())
         {
-            cout << "[DEBUG]: DECLARATION -> TYPE IDENT_LIST | " << token->value().c_str() << endl;
+            debug("DECLARATION -> TYPE IDENT_LIST");
             if (token == end) { return false; }
             if (equals(";"))
             {
-                cout << "[DEBUG]: DECLARATION -> TYPE IDENT_LIST ; | " << token->value().c_str() << endl;
+                debug("DECLARATION -> TYPE IDENT_LIST ;");
                 return true;
             }
         }
@@ -222,22 +231,22 @@ bool Parser::type()
 
     if (equals("int"))
     {
-        cout << "[DEBUG]: TYPE -> int | " << token->value().c_str() << endl;
+        debug("TYPE -> int");
         return true;
     }
     else if (equals("float"))
     {
-        cout << "[DEBUG]: TYPE -> float | " << token->value().c_str() << endl;
+        debug("TYPE -> float");
         return true;
     }
     else if (equals("bool"))
     {
-        cout << "[DEBUG]: TYPE -> bool | " << token->value().c_str() << endl;
+        debug("TYPE -> bool");
         return true;
     }
     else if (equals("string"))
     {
-        cout << "[DEBUG]: TYPE -> string | " << token->value().c_str() << endl;
+        debug("TYPE -> string");
         return true;
     }
 
@@ -253,11 +262,11 @@ bool Parser::ident_list()
 
     if (equals(Tokenizer::Identifier))
     {
-        cout << "[DEBUG]: IDENT_LIST -> Identifier | " << token->value().c_str() << endl;
+        debug("IDENT_LIST -> Identifier |");
         if (token == end) { return false; }
         if (ident_list2())
         {
-            cout << "[DEBUG]: IDENT_LIST -> Identifier IDENT_LIST2 | " << token->value().c_str() << endl;
+            debug("IDENT_LIST -> Identifier IDENT_LIST2");
             return true;
         }
     }
@@ -266,28 +275,64 @@ bool Parser::ident_list()
     return false;
 }
 
-// IDENT_LIST2 → , IDENT_LIST | λ
+// IDENT_LIST2 → IDENT_LIST3 | = RVALUE IDENT_LIST3
 bool Parser::ident_list2()
 {
     if (token == end)
     {
-        cout << "[DEBUG]: IDENT_LIST2 -> lambda" << endl;
+        debug("IDENT_LIST2 -> lambda");
+        return true;
+    }
+    auto temp = token;
+
+    if (ident_list3())
+    {
+        debug("IDENT_LIST2 -> IDENT_LIST3");
+        return true;
+    }
+    else if (equals("="))
+    {
+        debug("IDENT_LIST2 -> =");
+        if (token == end) { return false; }
+        if (rvalue())
+        {
+            debug("IDENT_LIST2 -> = RVALUE");
+            if (token == end) { return false; }
+            if (ident_list3())
+            {
+                debug("IDENT_LIST2 -> = RVALUE IDENT_LIST3");
+                return true;
+            }
+        }
+    }
+
+    debug("IDENT_LIST2 -> lambda");
+    token = temp;
+    return true; // λ
+}
+
+// IDENT_LIST3 → , IDENT_LIST | λ
+bool Parser::ident_list3()
+{
+    if (token == end)
+    {
+        debug("IDENT_LIST3 -> lambda");
         return true;
     }
     auto temp = token;
 
     if (equals(","))
     {
-        cout << "[DEBUG]: IDENT_LIST2 -> , | " << token->value().c_str() << endl;
+        debug("IDENT_LIST3 -> ,");
         if (token == end) { return false; }
         if (ident_list())
         {
-            cout << "[DEBUG]: IDENT_LIST2 -> , IDENT_LIST | " << token->value().c_str() << endl;
+            debug("IDENT_LIST3 -> , IDENT_LIST");
             return true;
         }
     }
 
-    cout << "[DEBUG]: IDENT_LIST2 -> lambda" << endl;
+    debug("IDENT_LIST3 -> lambda");
     token = temp;
     return true; // λ
 }
@@ -300,42 +345,42 @@ bool Parser::statement()
 
     if (for_stmt())
     {
-        cout << "[DEBUG]: STATEMENT -> FOR_STMT | " << token->value().c_str() << endl;
+        debug("STATEMENT -> FOR_STMT");
         return true;
     }
     else if (while_stmt())
     {
-        cout << "[DEBUG]: STATEMENT -> WHILE_STMT | " << token->value().c_str() << endl;
+        debug("STATEMENT -> WHILE_STMT");
         return true;
     }
     else if (expression())
     {
-        cout << "[DEBUG]: STATEMENT -> EXPRESSION | " << token->value().c_str() << endl;
+        debug("STATEMENT -> EXPRESSION");
         if (token == end) { return false; }
         if (equals(";"))
         {
-            cout << "[DEBUG]: STATEMENT -> EXPRESSION ; | " << token->value().c_str() << endl;
+            debug("STATEMENT -> EXPRESSION ;");
             return true;
         }
     }
     else if (if_stmt())
     {
-        cout << "[DEBUG]: STATEMENT -> IF_STMT | " << token->value().c_str() << endl;
+        debug("STATEMENT -> IF_STMT");
         return true;
     }
     else if (compound_stmt())
     {
-        cout << "[DEBUG]: STATEMENT -> COMPOUND_STMT | " << token->value().c_str() << endl;
+        debug("STATEMENT -> COMPOUND_STMT");
         return true;
     }
     else if (declaration())
     {
-        cout << "[DEBUG]: STATEMENT -> DECLARATION | " << token->value().c_str() << endl;
+        debug("STATEMENT -> DECLARATION");
         return true;
     }
     else if (equals(";"))
     {
-        cout << "[DEBUG]: STATEMENT -> ; | " << token->value().c_str() << endl;
+        debug("STATEMENT -> ;");
         return true;
     }
 
@@ -351,39 +396,39 @@ bool Parser::for_stmt()
 
     if (equals("for"))
     {
-        cout << "[DEBUG]: FOR_STMT -> for | " << token->value().c_str() << endl;
+        debug("FOR_STMT -> for");
         if (token == end) { return false; }
         if (equals("("))
         {
-            cout << "[DEBUG]: FOR_STMT -> for ( | " << token->value().c_str() << endl;
+            debug("FOR_STMT -> for (");
             if (token == end) { return false; }
             if (expression())
             {
-                cout << "[DEBUG]: FOR_STMT -> for ( EXPRESSION | " << token->value().c_str() << endl;
+                debug("FOR_STMT -> for ( EXPRESSION");
                 if (token == end) { return false; }
                 if (equals(";"))
                 {
-                    cout << "[DEBUG]: FOR_STMT -> for ( EXPRESSION ; | " << token->value().c_str() << endl;
+                    debug("FOR_STMT -> for ( EXPRESSION ;");
                     if (token == end) { return false; }
                     if (opt_expr())
                     {
-                        cout << "[DEBUG]: FOR_STMT -> for ( EXPRESSION ; OPT_EXPR | " << token->value().c_str() << endl;
+                        debug("FOR_STMT -> for ( EXPRESSION ; OPT_EXPR");
                         if (token == end) { return false; }
                         if (equals(";"))
                         {
-                            cout << "[DEBUG]: FOR_STMT -> for ( EXPRESSION ; OPT_EXPR ; | " << token->value().c_str() << endl;
+                            debug("FOR_STMT -> for ( EXPRESSION ; OPT_EXPR ;");
                             if (token == end) { return false; }
                             if (opt_expr())
                             {
-                                cout << "[DEBUG]: FOR_STMT -> for ( EXPRESSION ; OPT_EXPR ; OPT_EXPR | " << token->value().c_str() << endl;
+                                debug("FOR_STMT -> for ( EXPRESSION ; OPT_EXPR ; OPT_EXPR");
                                 if (token == end) { return false; }
                                 if (equals(")"))
                                 {
-                                    cout << "[DEBUG]: FOR_STMT -> for ( EXPRESSION ; OPT_EXPR ; OPT_EXPR ) | " << token->value().c_str() << endl;
+                                    debug("FOR_STMT -> for ( EXPRESSION ; OPT_EXPR ; OPT_EXPR )");
                                     if (token == end) { return false; }
                                     if (statement())
                                     {
-                                        cout << "[DEBUG]: FOR_STMT -> for ( EXPRESSION ; OPT_EXPR ; OPT_EXPR ) STATEMENT | " << token->value().c_str() << endl;
+                                        debug("FOR_STMT -> for ( EXPRESSION ; OPT_EXPR ; OPT_EXPR ) STATEMENT");
                                         return true;
                                     }
                                 }
@@ -404,18 +449,18 @@ bool Parser::opt_expr()
 {
     if (token == end)
     {
-        cout << "[DEBUG]: OPT_EXPR -> lambda" << endl;
+        debug("OPT_EXPR -> lambda");
         return true;
     }
     auto temp = token;
 
     if (expression())
     {
-        cout << "[DEBUG]: OPT_EXPR -> EXPRESSION | " << token->value().c_str() << endl;
+        debug("OPT_EXPR -> EXPRESSION");
         return true;
     }
 
-    cout << "[DEBUG]: OPT_EXPR -> lambda" << endl;
+    debug("OPT_EXPR -> lambda");
     token = temp;
     return true; // λ
 }
@@ -428,23 +473,23 @@ bool Parser::while_stmt()
 
     if (equals("while"))
     {
-        cout << "[DEBUG]: WHILE_STMT -> while | " << token->value().c_str() << endl;
+        debug("WHILE_STMT -> while");
         if (token == end) { return false; }
         if (equals("("))
         {
-            cout << "[DEBUG]: WHILE_STMT -> while ( | " << token->value().c_str() << endl;
+            debug("WHILE_STMT -> while (");
             if (token == end) { return false; }
             if (expression())
             {
-                cout << "[DEBUG]: WHILE_STMT -> while ( EXPRESSION | " << token->value().c_str() << endl;
+                debug("WHILE_STMT -> while ( EXPRESSION");
                 if (token == end) { return false; }
                 if (equals(")"))
                 {
-                    cout << "[DEBUG]: WHILE_STMT -> while ( EXPRESSION ) | " << token->value().c_str() << endl;
+                    debug("WHILE_STMT -> while ( EXPRESSION )");
                     if (token == end) { return false; }
                     if (statement())
                     {
-                        cout << "[DEBUG]: WHILE_STMT -> while ( EXPRESSION ) STATEMENT | " << token->value().c_str() << endl;
+                        debug("WHILE_STMT -> while ( EXPRESSION ) STATEMENT");
                         return true;
                     }
                 }
@@ -464,27 +509,27 @@ bool Parser::if_stmt()
 
     if (equals("if"))
     {
-        cout << "[DEBUG]: IF_STMT -> if | " << token->value().c_str() << endl;
+        debug("IF_STMT -> if");
         if (token == end) { return false; }
         if (equals("("))
         {
-            cout << "[DEBUG]: IF_STMT -> if ( | " << token->value().c_str() << endl;
+            debug("IF_STMT -> if (");
             if (token == end) { return false; }
             if (expression())
             {
-                cout << "[DEBUG]: IF_STMT -> if ( EXPRESSION | " << token->value().c_str() << endl;
+                debug("IF_STMT -> if ( EXPRESSION");
                 if (token == end) { return false; }
                 if (equals(")"))
                 {
-                    cout << "[DEBUG]: IF_STMT -> if ( EXPRESSION ) | " << token->value().c_str() << endl;
+                    debug("IF_STMT -> if ( EXPRESSION )");
                     if (token == end) { return false; }
                     if (statement())
                     {
-                        cout << "[DEBUG]: IF_STMT -> if ( EXPRESSION ) STATEMENT | " << token->value().c_str() << endl;
+                        debug("IF_STMT -> if ( EXPRESSION ) STATEMENT");
                         if (token == end) { return false; }
                         if (elsepart())
                         {
-                            cout << "[DEBUG]: IF_STMT -> if ( EXPRESSION ) STATEMENT ELSEPART | " << token->value().c_str() << endl;
+                            debug("IF_STMT -> if ( EXPRESSION ) STATEMENT ELSEPART");
                             return true;
                         }
                     }
@@ -502,23 +547,23 @@ bool Parser::elsepart()
 {
     if (token == end)
     {
-        cout << "[DEBUG]: ELSEPART -> lambda" << endl;
+        debug("ELSEPART -> lambda");
         return true;
     }
     auto temp = token;
 
     if (equals("else"))
     {
-        cout << "[DEBUG]: ELSEPART -> else | " << token->value().c_str() << endl;
+        debug("ELSEPART -> else");
         if (token == end) { return false; }
         if (statement())
         {
-            cout << "[DEBUG]: ELSEPART -> else STATEMENT | " << token->value().c_str() << endl;
+            debug("ELSEPART -> else STATEMENT");
             return true;
         }
     }
 
-    cout << "[DEBUG]: ELSEPART -> lambda" << endl;
+    debug("ELSEPART -> lambda");
     token = temp;
     return true; // λ
 }
@@ -531,15 +576,15 @@ bool Parser::compound_stmt()
 
     if (equals("{"))
     {
-        cout << "[DEBUG]: COMPOUND_STMT -> { | " << token->value().c_str() << endl;
+        debug("COMPOUND_STMT -> {");
         if (token == end) { return false; }
         if (stmt_list())
         {
-            cout << "[DEBUG]: COMPOUND_STMT -> { STMT_LIST | " << token->value().c_str() << endl;
+            debug("COMPOUND_STMT -> { STMT_LIST");
             if (token == end) { return false; }
             if (equals("}"))
             {
-                cout << "[DEBUG]: COMPOUND_STMT -> { STMT_LIST } | " << token->value().c_str() << endl;
+                debug("COMPOUND_STMT -> { STMT_LIST }");
                 return true;
             }
         }
@@ -554,23 +599,23 @@ bool Parser::stmt_list()
 {
     if (token == end)
     {
-        cout << "[DEBUG]: STMT_LIST -> lambda" << endl;
+        debug("STMT_LIST -> lambda");
         return true;
     }
     auto temp = token;
 
     if (statement())
     {
-        cout << "[DEBUG]: STMT_LIST -> STATEMENT | " << token->value().c_str() << endl;
+        debug("STMT_LIST -> STATEMENT");
         if (token == end) { return false; }
         if (stmt_list())
         {
-            cout << "[DEBUG]: STMT_LIST -> STATEMENT STMT_LIST | " << token->value().c_str() << endl;
+            debug("STMT_LIST -> STATEMENT STMT_LIST");
             return true;
         }
     }
 
-    cout << "[DEBUG]: STMT_LIST -> lambda" << endl;
+    debug("STMT_LIST -> lambda");
     token = temp;
     return true; // λ
 }
@@ -583,32 +628,32 @@ bool Parser::expression()
 
     if (equals(Tokenizer::Identifier))
     {
-        cout << "[DEBUG]: EXPRESSION -> Idenfitier | " << token->value().c_str() << endl;
+        debug("EXPRESSION -> Identifier");
         if (token == end) { return false; }
         if (equals("="))
         {
-            cout << "[DEBUG]: EXPRESSION -> Idenfitier = | " << token->value().c_str() << endl;
+            debug("EXPRESSION -> Identifier =");
             if (token == end) { return false; }
             if (expression())
             {
-                cout << "[DEBUG]: EXPRESSION -> Idenfitier = EXPRESSION | " << token->value().c_str() << endl;
+                debug("EXPRESSION -> Identifier = EXPRESSION");
                 return true;
             }
         }
     }
     else if (rvalue())
     {
-        cout << "[DEBUG]: EXPRESSION -> RVALUE | " << token->value().c_str() << endl;
+        debug("EXPRESSION -> RVALUE");
         return true;
     }
     else if (equals("true"))
     {
-        cout << "[DEBUG]: EXPRESSION -> true | " << token->value().c_str() << endl;
+        debug("EXPRESSION -> true");
         return true;
     }
     else if (equals("1"))
     {
-        cout << "[DEBUG]: EXPRESSION -> 1 | " << token->value().c_str() << endl;
+        debug("EXPRESSION -> 1");
         return true;
     }
 
@@ -624,11 +669,11 @@ bool Parser::rvalue()
 
     if (mag())
     {
-        cout << "[DEBUG]: RVALUE -> MAG | " << token->value().c_str() << endl;
+        debug("RVALUE -> MAG");
         if (token == end) { return false; }
         if (rvalue2())
         {
-            cout << "[DEBUG]: RVALUE -> MAG RVALUE2 | " << token->value().c_str() << endl;
+            debug("RVALUE -> MAG RVALUE2");
             return true;
         }
     }
@@ -642,28 +687,28 @@ bool Parser::rvalue2()
 {
     if (token == end)
     {
-        cout << "[DEBUG]: RVALUE2 -> lambda" << endl;
+        debug("RVALUE2 -> lambda");
         return true;
     }
     auto temp = token;
 
     if (compare())
     {
-        cout << "[DEBUG]: RVALUE2 -> COMPARE | " << token->value().c_str() << endl;
+        debug("RVALUE2 -> COMPARE");
         if (token == end) { return false; }
         if (mag())
         {
-            cout << "[DEBUG]: RVALUE2 -> COMPARE MAG | " << token->value().c_str() << endl;
+            debug("RVALUE2 -> COMPARE MAG");
             if (token == end) { return false; }
             if (rvalue2())
             {
-                cout << "[DEBUG]: RVALUE2 -> COMPARE MAG RVALUE2 | " << token->value().c_str() << endl;
+                debug("RVALUE2 -> COMPARE MAG RVALUE2");
                 return true;
             }
         }
     }
 
-    cout << "[DEBUG]: RVALUE2 -> lambda" << endl;
+    debug("RVALUE2 -> lambda");
     token = temp;
     return true; // λ
 }
@@ -676,32 +721,32 @@ bool Parser::compare()
 
     if (equals("=="))
     {
-        cout << "[DEBUG]: COMPARE -> == | " << token->value().c_str() << endl;
+        debug("COMPARE -> ==");
         return true;
     }
     else if (equals("<"))
     {
-        cout << "[DEBUG]: COMPARE -> < | " << token->value().c_str() << endl;
+        debug("COMPARE -> <");
         return true;
     }
     else if (equals(">"))
     {
-        cout << "[DEBUG]: COMPARE -> > | " << token->value().c_str() << endl;
+        debug("COMPARE -> >");
         return true;
     }
     else if (equals("<="))
     {
-        cout << "[DEBUG]: COMPARE -> <= | " << token->value().c_str() << endl;
+        debug("COMPARE -> <=");
         return true;
     }
     else if (equals(">="))
     {
-        cout << "[DEBUG]: COMPARE -> >= | " << token->value().c_str() << endl;
+        debug("COMPARE -> >=");
         return true;
     }
     else if (equals("!="))
     {
-        cout << "[DEBUG]: COMPARE -> != | " << token->value().c_str() << endl;
+        debug("COMPARE -> !=");
         return true;
     }
 
@@ -717,11 +762,11 @@ bool Parser::mag()
 
     if (term())
     {
-        cout << "[DEBUG]: MAG -> TERM | " << token->value().c_str() << endl;
+        debug("MAG -> TERM");
         if (token == end) { return false; }
         if (mag2())
         {
-            cout << "[DEBUG]: MAG -> TERM MAG2 | " << token->value().c_str() << endl;
+            debug("MAG -> TERM MAG2");
             return true;
         }
     }
@@ -735,43 +780,43 @@ bool Parser::mag2()
 {
     if (token == end)
     {
-        cout << "[DEBUG]: MAG2 -> lambda" << endl;
+        debug("MAG2 -> lambda");
         return true;
     }
     auto temp = token;
 
     if (equals("+"))
     {
-        cout << "[DEBUG]: MAG2 -> + | " << token->value().c_str() << endl;
+        debug("MAG2 -> +");
         if (token == end) { return false; }
         if (term())
         {
-            cout << "[DEBUG]: MAG2 -> + TERM | " << token->value().c_str() << endl;
+            debug("MAG2 -> + TERM");
             if (token == end) { return false; }
             if (mag2())
             {
-                cout << "[DEBUG]: MAG2 -> + TERM MAG2 | " << token->value().c_str() << endl;
+                debug("MAG2 -> + TERM MAG2");
                 return true;
             }
         }
     }
     else if (equals("-"))
     {
-        cout << "[DEBUG]: MAG2 -> - | " << token->value().c_str() << endl;
+        debug("MAG2 -> -");
         if (token == end) { return false; }
         if (term())
         {
-            cout << "[DEBUG]: MAG2 -> - TERM | " << token->value().c_str() << endl;
+            debug("MAG2 -> - TERM");
             if (token == end) { return false; }
             if (mag2())
             {
-                cout << "[DEBUG]: MAG2 -> - TERM MAG2 | " << token->value().c_str() << endl;
+                debug("MAG2 -> - TERM MAG2");
                 return true;
             }
         }
     }
 
-    cout << "[DEBUG]: MAG2 -> lambda" << endl;
+    debug("MAG2 -> lambda");
     token = temp;
     return true; // λ
 }
@@ -784,11 +829,11 @@ bool Parser::term()
 
     if (factor())
     {
-        cout << "[DEBUG]: TERM -> FACTOR | " << token->value().c_str() << endl;
+        debug("TERM -> FACTOR");
         if (token == end) { return false; }
         if (term2())
         {
-            cout << "[DEBUG]: TERM -> FACTOR TERM2 | " << token->value().c_str() << endl;
+            debug("TERM -> FACTOR TERM2");
             return true;
         }
     }
@@ -802,48 +847,48 @@ bool Parser::term2()
 {
     if (token == end)
     {
-        cout << "[DEBUG]: TERM2 -> lambda" << endl;
+        debug("TERM2 -> lambda");
         return true;
     }
     auto temp = token;
 
     if (equals("*"))
     {
-        cout << "[DEBUG]: TERM -> * | " << token->value().c_str() << endl;
+        debug("TERM -> *");
         if (token == end) { return false; }
         if (factor())
         {
-            cout << "[DEBUG]: TERM -> * FACTOR | " << token->value().c_str() << endl;
+            debug("TERM -> * FACTOR");
             if (token == end) { return false; }
             if (term2())
             {
-                cout << "[DEBUG]: TERM -> * FACTOR TERM2 | " << token->value().c_str() << endl;
+                debug("TERM -> * FACTOR TERM2");
                 return true;
             }
         }
     }
     else if (equals("/"))
     {
-        cout << "[DEBUG]: TERM -> / | " << token->value().c_str() << endl;
+        debug("TERM -> /");
         if (token == end) { return false; }
         if (factor())
         {
-            cout << "[DEBUG]: TERM -> / FACTOR | " << token->value().c_str() << endl;
+            debug("TERM -> / FACTOR");
             if (token == end) { return false; }
             if (term2())
             {
-                cout << "[DEBUG]: TERM -> / FACTOR TERM2 | " << token->value().c_str() << endl;
+                debug("TERM -> / FACTOR TERM2");
                 return true;
             }
         }
     }
     
-    cout << "[DEBUG]: TERM2 -> lambda" << endl;
+    debug("TERM2 -> lambda");
     token = temp;
     return true; // λ
 }
 
-// FACTOR → ( EXPRESSION ) | - FACTOR | + FACTOR | Identifier | Integer | Float
+// FACTOR → ( EXPRESSION ) | - FACTOR | + FACTOR | Identifier | Integer | Float | String
 bool Parser::factor()
 {
     if (token == end) { return false; }
@@ -851,52 +896,57 @@ bool Parser::factor()
 
     if (equals("("))
     {
-        cout << "[DEBUG]: FACTOR -> ( | " << token->value().c_str() << endl;
+        debug("FACTOR -> (");
         if (token == end) { return false; }
         if (expression())
         {
-            cout << "[DEBUG]: FACTOR -> ( EXPRESSION | " << token->value().c_str() << endl;
+            debug("FACTOR -> ( EXPRESSION");
             if (token == end) { return false; }
             if (equals(")"))
             {
-                cout << "[DEBUG]: FACTOR -> ( EXPRESSION ) | " << token->value().c_str() << endl;
+                debug("FACTOR -> ( EXPRESSION )");
                 return true;
             }
         }
     }
     else if (equals("-"))
     {
-        cout << "[DEBUG]: FACTOR -> - | " << token->value().c_str() << endl;
+        debug("FACTOR -> -");
         if (token == end) { return false; }
         if (factor())
         {
-            cout << "[DEBUG]: FACTOR -> - FACTOR | " << token->value().c_str() << endl;
+            debug("FACTOR -> - FACTOR");
             return true;
         }
     }
     else if (equals("+"))
     {
-        cout << "[DEBUG]: FACTOR -> + | " << token->value().c_str() << endl;
+        debug("FACTOR -> +");
         if (token == end) { return false; }
         if (factor())
         {
-            cout << "[DEBUG]: FACTOR -> + FACTOR | " << token->value().c_str() << endl;
+            debug("FACTOR -> + FACTOR");
             return true;
         }
     }
     else if (equals(Tokenizer::Identifier))
     {
-        cout << "[DEBUG]: FACTOR -> Identifier | " << token->value().c_str() << endl;
+        debug("FACTOR -> Identifier");
         return true;
     }
     else if (equals(Tokenizer::Integer))
     {
-        cout << "[DEBUG]: FACTOR -> Integer | " << token->value().c_str() << endl;
+        debug("FACTOR -> Integer");
         return true;
     }
     else if (equals(Tokenizer::Float))
     {
-        cout << "[DEBUG]: FACTOR -> Float | " << token->value().c_str() << endl;
+        debug("FACTOR -> Float");
+        return true;
+    }
+    else if (equals(Tokenizer::String))
+    {
+        debug("FACTOR -> String");
         return true;
     }
 

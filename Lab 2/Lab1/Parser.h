@@ -52,8 +52,11 @@ class Parser
         // IDENT_LIST → Identifier IDENT_LIST2
         bool ident_list();
 
-        // IDENT_LIST2 → , IDENT_LIST | λ
+        // IDENT_LIST2 → IDENT_LIST3 | = RVALUE IDENT_LIST3
         bool ident_list2();
+
+        // IDENT_LIST3 → , IDENT_LIST | λ
+        bool ident_list3();
 
         // STATEMENT → FOR_STMT | WHILE_STMT | EXPRESSION ; | IF_STMT | COMPOUND_STMT | DECLARATION | ;
         bool statement();
@@ -103,7 +106,7 @@ class Parser
         // TERM2 → * FACTOR TERM2 | / FACTOR TERM 2 | λ
         bool term2();
 
-        // FACTOR → ( EXPRESSION ) | - FACTOR | + FACTOR | Identifier | Integer | Float
+        // FACTOR → ( EXPRESSION ) | - FACTOR | + FACTOR | Identifier | Integer | Float | String
         bool factor();
 
         // Helper function that returns true if equality exists at current position, incrementing iterator if true
@@ -111,6 +114,12 @@ class Parser
 
         // Helper function that returns true if equality exists at current position, incrementing iterator if true
         bool equals(char* input);
+
+        // Prints debug code showing function progress -> token
+        void debug(char* msg);
+
+        // Whether debug code should be printed to console
+        bool doDebug;
 
         // Stores current position in tokens vector
         std::vector<Tokenizer::Token>::iterator token, end;

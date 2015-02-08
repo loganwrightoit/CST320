@@ -843,7 +843,7 @@ bool Parser::term2()
     return true; // λ
 }
 
-// FACTOR → ( EXPRESSION ) | - FACTOR | + FACTOR | Identifier | TYPE
+// FACTOR → ( EXPRESSION ) | - FACTOR | + FACTOR | Identifier | Integer | Float
 bool Parser::factor()
 {
     if (token == end) { return false; }
@@ -889,9 +889,14 @@ bool Parser::factor()
         cout << "[DEBUG]: FACTOR -> Identifier | " << token->value().c_str() << endl;
         return true;
     }
-    else if (type())
+    else if (equals(Tokenizer::Integer))
     {
-        cout << "[DEBUG]: FACTOR -> TYPE | " << token->value().c_str() << endl;
+        cout << "[DEBUG]: FACTOR -> Integer | " << token->value().c_str() << endl;
+        return true;
+    }
+    else if (equals(Tokenizer::Float))
+    {
+        cout << "[DEBUG]: FACTOR -> Float | " << token->value().c_str() << endl;
         return true;
     }
 

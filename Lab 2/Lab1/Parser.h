@@ -103,7 +103,7 @@ class Parser
         // TERM2 → * FACTOR TERM2 | / FACTOR TERM 2 | λ
         bool term2();
 
-        // FACTOR → ( EXPRESSION ) | - FACTOR | + FACTOR | Identifier | TYPE
+        // FACTOR → ( EXPRESSION ) | - FACTOR | + FACTOR | Identifier | Integer | Float
         bool factor();
 
         // Helper function that returns true if equality exists at current position, incrementing iterator if true
@@ -111,9 +111,6 @@ class Parser
 
         // Helper function that returns true if equality exists at current position, incrementing iterator if true
         bool equals(char* input);
-
-        bool S();
-        bool A();
 
         // Stores current position in tokens vector
         std::vector<Tokenizer::Token>::iterator token, end;

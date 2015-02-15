@@ -130,6 +130,9 @@ class Parser
         // Prints debug code showing last processed function.
         void debug(char* msg);
 
+        // Prints syntax error with expected token value
+        void error(char* expected);
+
         // Whether debug code should be printed to console
         bool doDebug;
 

@@ -36,6 +36,11 @@ void Parser::debug(char* msg)
     }
 }
 
+void Parser::error(char* expected)
+{
+    cout << "Syntax error at line " << token->line() << " position " << token->pos() << ", expected '" << expected << "' but encountered '" << token->value().c_str() << "'" << endl;
+}
+
 bool Parser::equals(Tokenizer::TokenType type)
 {
     if (type == token->type())
@@ -109,12 +114,32 @@ bool Parser::function()
                             debug("FUNCTION -> TYPE Identifier ( ARG_LIST ) COMPOUND_STMT");
                             return true;
                         }
+                        else
+                        {
+                            error("COMPOUND_STMT");
+                        }
+                    }
+                    else
+                    {
+                        error(")");
                     }
                 }
+                else
+                {
+                    error("ARGLIST");
+                }
+            }
+            else
+            {
+                error("(");
             }
         }
+        else
+        {
+            error("Identifier");
+        }
     }
-
+    
     token = temp;
     return false;
 }
@@ -191,8 +216,10 @@ bool Parser::arg()
             debug("ARG -> TYPE Identifier");
             return true;
         }
+        error("Identifier");
     }
 
+    error("TYPE");
     token = temp;
     return false;
 }
@@ -217,6 +244,10 @@ bool Parser::declaration()
                 return true;
             }
         }
+    }
+    else
+    {
+        error("TYPE");
     }
 
     token = temp;
@@ -250,6 +281,7 @@ bool Parser::type()
         return true;
     }
 
+    error("TYPE");
     token = temp;
     return false;
 }

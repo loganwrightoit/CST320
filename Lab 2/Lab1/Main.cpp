@@ -84,7 +84,7 @@ int main(int argc, char* argv[])
         // Avoid printing lines preprocessed to empty strings
         if (line.length() >= initLen)
         {
-            cout << line << endl;
+            //cout << line << endl;
         }
 
         // Create TokenType pairs with preprocessed line

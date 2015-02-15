@@ -19,11 +19,23 @@
 
 #include "Tokenizer.h"
 
-Tokenizer::Token::Token(size_t pos, Tokenizer::TokenType type, std::string value)
-    : _pos(pos), _type(type), _value(value) {}
+Tokenizer::Token::Token(size_t line, size_t pos, Tokenizer::TokenType type, std::string value)
+    : _line(line), _pos(pos), _type(type), _value(value) {}
 
 Tokenizer::Token::~Token()
 {
+}
+
+/**************************************************************
+*   Entry:  None.
+*
+*    Exit:  A size_t line containing token.
+*
+* Purpose:  Returns the line number that contains token.
+***************************************************************/
+size_t Tokenizer::Token::line()
+{
+    return _line;
 }
 
 /**************************************************************

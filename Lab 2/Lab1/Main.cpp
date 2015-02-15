@@ -1,19 +1,19 @@
 /***********************************************************
 * Author:                   Logan Wright
 * Date Created:             01/16/2015
-* Last Modification Date:   02/06/2015
+* Last Modification Date:   02/08/2015
 * Lab Number:               CST 320 Lab 2
 * Filename:                 Main.cpp
 *
 * Overview:
-*   A lexical analyzer, preprocessoer, and parser used to
+*   A lexical analyzer, preprocesser, and parser used to
 *   process a C++ style language.
 *
 * Input:
 *   User inputs name of a text file containing C++ code.
 *
 * Output:
-*   Prints results of tokenizer and parse result.
+*   Prints post-preprocessed code and final parse result.
 ************************************************************/
 
 #include "Tokenizer.h"
@@ -74,8 +74,10 @@ int main(int argc, char* argv[])
     // Begin analyzing code
 
     std::string line;
+    int lineNum = 0;
     while (std::getline(file, line))
     {
+        ++lineNum;
         size_t initLen = line.length();
         line = preprocessor.run(line);
 
@@ -86,7 +88,7 @@ int main(int argc, char* argv[])
         }
 
         // Create TokenType pairs with preprocessed line
-        auto result = tokenizer.tokenize(line);
+        auto result = tokenizer.tokenize(lineNum, line);
         auto iter = result.begin();
         while (iter != result.end())
         {
@@ -98,7 +100,7 @@ int main(int argc, char* argv[])
 
     parseTokens();
 
-    printTokens();
+    //printTokens();
 
     return 0;
 }
@@ -113,7 +115,7 @@ int main(int argc, char* argv[])
 void parseTokens()
 {
     bool result = parser.parse(tokens);
-    cout << "\n[PARSER]: " << (result ? "SUCCESS" : "FAILURE") << endl;
+    cout << "\n[PARSER]: " << (result ? "Yes" : "No") << endl;
 }
 
 /**************************************************************

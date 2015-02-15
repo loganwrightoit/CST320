@@ -1,7 +1,7 @@
 ﻿/***********************************************************
 * Author:                   Logan Wright
 * Date Created:             02/06/2015
-* Last Modification Date:   02/06/2015
+* Last Modification Date:   02/08/2015
 * Lab Number:               CST 320 Lab 2
 * Filename:                 Parser.h
 *
@@ -26,6 +26,18 @@ class Parser
 
         Parser();
         ~Parser();
+
+        /**********************************************************************
+        *   bool parse(std::vector<Tokenizer::Token> tokens)
+        *
+        *      Purpose: Parses a list of tokens using mini-c grammar rules.
+        *
+        *        Entry: tokens - a list of Tokenizer::Token's.
+        *
+        *         Exit: Boolean true if file parses completely.
+        *
+        *               Boolean false if parser error encountered.
+        **********************************************************************/
 
         bool parse(std::vector<Tokenizer::Token> tokens);
 
@@ -82,7 +94,7 @@ class Parser
         // STMT_LIST → STATEMENT STMT_LIST | λ
         bool stmt_list();
 
-        // EXPRESSION → RVALUE | true | Identifier = EXPRESSION
+        // EXPRESSION → Identifier = EXPRESSION | RVALUE | true
         bool expression();
 
         // RVALUE → MAG RVALUE2
@@ -115,7 +127,7 @@ class Parser
         // Helper function that returns true if equality exists at current position, incrementing iterator if true
         bool equals(char* input);
 
-        // Prints debug code showing function progress -> token
+        // Prints debug code showing last processed function.
         void debug(char* msg);
 
         // Whether debug code should be printed to console

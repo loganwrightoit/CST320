@@ -1,7 +1,7 @@
 ﻿/***********************************************************
 * Author:                   Logan Wright
 * Date Created:             02/06/2015
-* Last Modification Date:   02/06/2015
+* Last Modification Date:   02/08/2015
 * Lab Number:               CST 320 Lab 2
 * Filename:                 Parser.cpp
 *
@@ -609,23 +609,13 @@ bool Parser::stmt_list()
     return true; // λ
 }
 
-// EXPRESSION → RVALUE | true | Identifier = EXPRESSION
+// EXPRESSION → Identifier = EXPRESSION | RVALUE | true
 bool Parser::expression()
 {
     if (token == end) { return false; }
     auto temp = token;
     
-    if (rvalue())
-    {
-        debug("EXPRESSION -> RVALUE");
-        return true;
-    }
-    else if (equals("true"))
-    {
-        debug("EXPRESSION -> true");
-        return true;
-    }
-    else if (equals(Tokenizer::Identifier))
+    if (equals(Tokenizer::Identifier))
     {
         debug("EXPRESSION -> Identifier");
         if (token == end) { return false; }
@@ -639,6 +629,20 @@ bool Parser::expression()
                 return true;
             }
         }
+    }
+
+    // RVALUE may also contain Identifier, so backtrack here
+    token = temp;
+
+    if (rvalue())
+    {
+        debug("EXPRESSION -> RVALUE");
+        return true;
+    }
+    else if (equals("true"))
+    {
+        debug("EXPRESSION -> true");
+        return true;
     }
 
     token = temp;

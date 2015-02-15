@@ -131,7 +131,7 @@ std::string Preprocessor::cleanComments(std::string line)
 std::string Preprocessor::replaceSymbols(std::string line)
 {
     Tokenizer tokenizer;
-    auto tokens = tokenizer.tokenize(line);
+    auto tokens = tokenizer.tokenize(0, line);
 
     // Find and replace symbols in line
     for (auto token : tokens)
@@ -173,7 +173,7 @@ std::string Preprocessor::replaceSymbols(std::string line)
 void Preprocessor::processDirective(std::string line)
 {
     Tokenizer tokenizer;
-    auto tokens = tokenizer.tokenize(line);
+    auto tokens = tokenizer.tokenize(0, line);
 
     switch (getDirective(tokens.at(0).value()))
     {

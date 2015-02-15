@@ -50,10 +50,18 @@ class Tokenizer
 
             public:
 
-                Token(size_t pos, TokenType type, std::string value);
+                Token(size_t line, size_t pos, TokenType type, std::string value);
                 ~Token();
 
                 /**********************************************************************
+                *   size_t Tokenizer::Token::line()
+                *
+                *      Purpose: Returns the line number that contains token.
+                *
+                *        Entry: None.
+                *
+                *         Exit: A size_t line containing token.
+                *
                 *   size_t Tokenizer::Token::pos()
                 *
                 *      Purpose: Returns the position relative to beginning of
@@ -89,12 +97,16 @@ class Tokenizer
                 *         Exit: A std::string.
                 ***********************************************************************/
 
+                size_t line();
                 size_t pos();
                 void setType(Tokenizer::TokenType type);
                 TokenType type();
                 std::string value();
 
             private:
+
+                // Line containing token
+                size_t _line;
 
                 // Start position of token in line
                 size_t _pos;
@@ -140,8 +152,8 @@ class Tokenizer
         *         Exit: A new string-TokenType pair.
         ***********************************************************************/
 
-        std::vector<Token> tokenize(std::string inStr);
-        Token getToken(size_t pos, std::string inToken);
+        std::vector<Token> tokenize(size_t line, std::string inStr);
+        Token getToken(size_t line, size_t pos, std::string inToken);
 
         std::string enumToString(TokenType type);
 

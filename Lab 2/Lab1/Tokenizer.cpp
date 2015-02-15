@@ -97,7 +97,7 @@ Tokenizer::~Tokenizer()
 *			will be a line from a file, and splits it into tokens.
 *
 ***************************************************************/
-std::vector<Tokenizer::Token> Tokenizer::tokenize(std::string inStr)
+std::vector<Tokenizer::Token> Tokenizer::tokenize(size_t line, std::string inStr)
 {
     std::vector<Token> tokens;
     size_t pos = 0, prev = 0;
@@ -110,7 +110,7 @@ std::vector<Tokenizer::Token> Tokenizer::tokenize(std::string inStr)
         // Add whole token types
         if (pos != prev)
         {
-            tokens.push_back(Tokenizer::getToken(prev, inStr.substr(prev, pos - prev)));
+            tokens.push_back(Tokenizer::getToken(line, prev, inStr.substr(prev, pos - prev)));
         }
 
         // If position is before defined symbol, add it
@@ -123,7 +123,7 @@ std::vector<Tokenizer::Token> Tokenizer::tokenize(std::string inStr)
             {
                 size_t endPos = inStr.find_first_of("\"", pos + 1);
                 //tokens.push_back(Tokenizer::getToken(pos, inStr.substr(pos, 1))); // Adds opening quote
-                tokens.push_back(Token(pos + 1, TokenType::String, inStr.substr(pos + 1, endPos - pos - 1)));
+                tokens.push_back(Token(line, pos + 1, TokenType::String, inStr.substr(pos + 1, endPos - pos - 1)));
                 //tokens.push_back(Tokenizer::getToken(endPos, inStr.substr(endPos, 1))); // Adds closing quote
                 prev = pos = endPos + 1;
                 continue;
@@ -132,7 +132,7 @@ std::vector<Tokenizer::Token> Tokenizer::tokenize(std::string inStr)
             // Check for and add symbol pair
             else if (tokenMatcher.find(symbolPair) != tokenMatcher.end())
             {
-                tokens.push_back(Tokenizer::getToken(pos, symbolPair));
+                tokens.push_back(Tokenizer::getToken(line, pos, symbolPair));
                 prev = pos + 2;
                 continue;
             }
@@ -140,7 +140,7 @@ std::vector<Tokenizer::Token> Tokenizer::tokenize(std::string inStr)
             // Add generic symbol type
             else
             {
-                tokens.push_back(Tokenizer::getToken(pos, symbol));
+                tokens.push_back(Tokenizer::getToken(line, pos, symbol));
             }            
         }
 
@@ -158,16 +158,16 @@ std::vector<Tokenizer::Token> Tokenizer::tokenize(std::string inStr)
 * Purpose:  Turns a string token into a Token object.
 *
 ***************************************************************/
-Tokenizer::Token Tokenizer::getToken(size_t pos, std::string inToken)
+Tokenizer::Token Tokenizer::getToken(size_t line, size_t pos, std::string inToken)
 {
     auto iter = tokenMatcher.find(inToken);
     if (iter != tokenMatcher.end())
     {
-        return Token(pos, iter->second, inToken);
+        return Token(line, pos, iter->second, inToken);
     }
     else
     {
-        Token token(pos, Invalid, inToken);
+        Token token(line, pos, Invalid, inToken);
         
         // Attempt to match token using language files
         StateMachine stateMachine;

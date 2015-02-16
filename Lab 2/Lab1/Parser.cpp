@@ -42,6 +42,18 @@ void Parser::error(char* expected)
     exit(1);
 }
 
+void Parser::addSymbol(Symbol::Use use)
+{
+    // If symbol exists, skip
+    auto prev = token - 2;
+    auto current = token - 1;
+    auto result = symbolTable.find(current->value());
+    if (result == nullptr)
+    {
+        symbolTable.add(Symbol(current->value().c_str(), lastType, use, ""));
+    }
+}
+
 bool Parser::equals(Tokenizer::TokenType type)
 {
     if (type == token->type())
@@ -76,9 +88,9 @@ bool Parser::equals(char* input)
 
 bool Parser::parse(std::vector<Tokenizer::Token> tokens)
 {
+    /*
     // For simplicity, we'll populate symbol table first
     // and fill in symbol value and use later while parsing.
-    cout << "Number tokens: " << tokens.size() << endl;
     auto iter = tokens.begin();
     while (iter != tokens.end())
     {
@@ -106,6 +118,7 @@ bool Parser::parse(std::vector<Tokenizer::Token> tokens)
         }
         ++iter;
     }
+    */
 
     token = tokens.begin();
     end = tokens.end();
@@ -142,12 +155,7 @@ bool Parser::function()
         if (token == end) { return false; }
         if (equals(Tokenizer::Identifier))
         {
-            // Fill token use
-            Symbol* symbol = symbolTable.find((token - 1)->value());
-            if (symbol != NULL)
-            {
-                symbol->setUse(Symbol::FunctionName);
-            }
+            addSymbol(Symbol::FunctionName);
 
             debug("FUNCTION -> TYPE Identifier");
             if (token == end) { return false; }
@@ -249,6 +257,8 @@ bool Parser::arg()
         if (token == end) { return false; }
         if (equals(Tokenizer::Identifier))
         {
+            addSymbol(Symbol::VariableName);
+
             debug("ARG -> TYPE Identifier");
             return true;
         }
@@ -300,21 +310,25 @@ bool Parser::type()
 
     if (equals("int"))
     {
+        lastType = Symbol::Integer;
         debug("TYPE -> int");
         return true;
     }
     else if (equals("float"))
     {
+        lastType = Symbol::Float;
         debug("TYPE -> float");
         return true;
     }
     else if (equals("bool"))
     {
+        lastType = Symbol::Bool;
         debug("TYPE -> bool");
         return true;
     }
     else if (equals("string"))
     {
+        lastType = Symbol::String;
         debug("TYPE -> string");
         return true;
     }
@@ -331,6 +345,8 @@ bool Parser::ident_list()
 
     if (equals(Tokenizer::Identifier))
     {
+        addSymbol(Symbol::VariableName);
+
         debug("IDENT_LIST -> Identifier");
         if (token == end) { return false; }
         if (ident_list2())

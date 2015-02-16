@@ -132,17 +132,23 @@ class Parser
         // Helper function that returns true if equality exists at current position, incrementing iterator if true
         bool equals(char* input);
 
-        // Prints debug code showing last processed function.
+        // Prints debug code showing last processed function
         void debug(char* msg);
 
         // Prints syntax error with expected token value
         void error(char* expected);
+
+        // Adds symbol to symbol table
+        void addSymbol(Symbol::Use use);
 
         // Whether debug code should be printed to console
         bool doDebug;
 
         // Stores current position in tokens vector
         std::vector<Tokenizer::Token>::iterator token, end;
+
+        // Stores last type for IDENT_LIST declarations
+        Symbol::Type lastType;
 
         // Stores parsed elements in LIFO container for output after parsing
         std::stack<char*> results;

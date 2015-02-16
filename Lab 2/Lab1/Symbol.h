@@ -66,6 +66,14 @@ class Symbol
         *
         *		  Exit:	A Type enumerator.
         *
+        *	void setType(Type inType)
+        *
+        *      Purpose: Sets symbol type.
+        *
+        *		 Entry:	Symbol::Type value.
+        *
+        *		  Exit:	None.
+        *
         *	Use getUse() const
         *
         *      Purpose: Returns the use of the symbol, such as whether it
@@ -95,6 +103,7 @@ class Symbol
 
         std::string getName() const;
         Type getType() const;
+        void setType(Type type);
         Use getUse() const;
         void setUse(Use inUse);
         std::string getValue() const;

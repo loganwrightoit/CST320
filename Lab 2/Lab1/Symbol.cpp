@@ -53,6 +53,18 @@ Symbol::Type Symbol::getType() const
 };
 
 /**************************************************************
+*   Entry:  Symbol::Type value.
+*
+*    Exit:  None.
+*
+* Purpose:  Sets symbol type.
+***************************************************************/
+void Symbol::setType(Type inType)
+{
+    _type = inType;
+}
+
+/**************************************************************
 *   Entry:  None.
 *
 *    Exit:  A Use enumerator.

@@ -44,6 +44,9 @@ static StateMachine stateMachine;
 // Stores token and type
 std::vector<Tokenizer::Token> tokens;
 
+// Stores symbols
+static SymbolTable symbolTable;
+
 // Parser object
 static Parser parser;
 
@@ -74,7 +77,7 @@ int main(int argc, char* argv[])
     // Begin analyzing code
 
     std::string line;
-    int lineNum = 0;
+    int lineNum = -3;
     while (std::getline(file, line))
     {
         ++lineNum;

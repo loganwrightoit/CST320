@@ -18,6 +18,7 @@
 #pragma once
 #include "Tokenizer.h"
 #include <vector>
+#include <stack>
 
 class Parser
 {
@@ -143,7 +144,7 @@ class Parser
         std::vector<Tokenizer::Token>::iterator token, end;
 
         // Stores parsed elements in LIFO container for output after parsing
-        //std::stack<char*> results;
+        std::stack<char*> results;
 
 };
 

@@ -21,7 +21,7 @@ using namespace std;
 
 Parser::Parser()
 {
-    doDebug = true;
+    doDebug = false;
 }
 
 Parser::~Parser()
@@ -38,7 +38,8 @@ void Parser::debug(char* msg)
 
 void Parser::error(char* expected)
 {
-    cout << "Syntax error at line " << token->line() << " position " << token->pos() << ", expected '" << expected << "' but encountered '" << token->value().c_str() << "'" << endl;
+    cout << "Syntax error at line " << token->line() << " position " << token->pos() << ", missing a '" << expected << "'" << endl;
+    exit(1);
 }
 
 bool Parser::equals(Tokenizer::TokenType type)
@@ -80,7 +81,17 @@ bool Parser::parse(std::vector<Tokenizer::Token> tokens)
 
     // Assume int main() { COMPOUND_STMT } comes first
     if (token == end) { return false; }
-    return function();
+
+    bool result = function();
+    // Print structures
+    while (!results.empty())
+    {
+        char* result = results.top();
+        std::cout << result << endl;
+        results.pop();
+    }
+
+    return result;
 }
 
 // FUNCTION → TYPE Identifier ( ARG_LIST ) COMPOUND_STMT
@@ -112,6 +123,7 @@ bool Parser::function()
                         if (compound_stmt())
                         {
                             debug("FUNCTION -> TYPE Identifier ( ARG_LIST ) COMPOUND_STMT");
+                            results.push("Function");
                             return true;
                         }
                     }
@@ -141,6 +153,7 @@ bool Parser::arg_list()
         if (arg_list2())
         {
             debug("ARG_LIST -> ARG ARG_LIST2");
+            results.push("ArgumentList");
             return true;
         }
     }
@@ -262,10 +275,6 @@ bool Parser::type()
         debug("TYPE -> string");
         return true;
     }
-    else
-    {
-        error("TYPE");
-    }
         
     token = temp;
     return false;
@@ -374,6 +383,10 @@ bool Parser::statement()
             debug("STATEMENT -> EXPRESSION ;");
             return true;
         }
+        else
+        {
+            error(";");
+        }
     }
     else if (if_stmt())
     {
@@ -436,6 +449,7 @@ bool Parser::for_stmt()
                                 if (statement())
                                 {
                                     debug("FOR_STMT -> for ( DECLARATION ; OPT_EXPR ; OPT_EXPR ) STATEMENT");
+                                    results.push("ForStatement");
                                     return true;
                                 }
                             }
@@ -508,6 +522,7 @@ bool Parser::while_stmt()
                     if (statement())
                     {
                         debug("WHILE_STMT -> while ( EXPRESSION ) STATEMENT");
+                        results.push("WhileStatement");
                         return true;
                     }
                 }
@@ -556,6 +571,7 @@ bool Parser::if_stmt()
                         if (elsepart())
                         {
                             debug("IF_STMT -> if ( EXPRESSION ) STATEMENT ELSEPART");
+                            results.push("IfStatement");
                             return true;
                         }
                     }
@@ -593,6 +609,7 @@ bool Parser::elsepart()
         if (statement())
         {
             debug("ELSEPART -> else STATEMENT");
+            results.push("ElseStatement");
             return true;
         }
     }

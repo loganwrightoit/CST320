@@ -21,7 +21,7 @@ using namespace std;
 
 Parser::Parser()
 {
-    doDebug = false;
+    doDebug = true;
 }
 
 Parser::~Parser()
@@ -114,29 +114,9 @@ bool Parser::function()
                             debug("FUNCTION -> TYPE Identifier ( ARG_LIST ) COMPOUND_STMT");
                             return true;
                         }
-                        else
-                        {
-                            error("COMPOUND_STMT");
-                        }
-                    }
-                    else
-                    {
-                        error(")");
                     }
                 }
-                else
-                {
-                    error("ARGLIST");
-                }
             }
-            else
-            {
-                error("(");
-            }
-        }
-        else
-        {
-            error("Identifier");
         }
     }
     
@@ -216,10 +196,12 @@ bool Parser::arg()
             debug("ARG -> TYPE Identifier");
             return true;
         }
-        error("Identifier");
+        else
+        {
+            error("Identifier");
+        }        
     }
 
-    error("TYPE");
     token = temp;
     return false;
 }
@@ -243,11 +225,11 @@ bool Parser::declaration()
                 debug("DECLARATION -> TYPE IDENT_LIST ;");
                 return true;
             }
+            else
+            {
+                error(";");
+            }
         }
-    }
-    else
-    {
-        error("TYPE");
     }
 
     token = temp;
@@ -280,8 +262,11 @@ bool Parser::type()
         debug("TYPE -> string");
         return true;
     }
-
-    error("TYPE");
+    else
+    {
+        error("TYPE");
+    }
+        
     token = temp;
     return false;
 }
@@ -454,10 +439,22 @@ bool Parser::for_stmt()
                                     return true;
                                 }
                             }
+                            else
+                            {
+                                error(")");
+                            }
                         }
+                    }
+                    else
+                    {
+                        error(";");
                     }
                 }
             }
+        }
+        else
+        {
+            error("(");
         }
     }
 
@@ -514,7 +511,15 @@ bool Parser::while_stmt()
                         return true;
                     }
                 }
+                else
+                {
+                    error(")");
+                }
             }
+        }
+        else
+        {
+            error("(");
         }
     }
 
@@ -555,7 +560,15 @@ bool Parser::if_stmt()
                         }
                     }
                 }
+                else
+                {
+                    error(")");
+                }
             }
+        }
+        else
+        {
+            error("(");
         }
     }
 
@@ -608,6 +621,10 @@ bool Parser::compound_stmt()
                 debug("COMPOUND_STMT -> { STMT_LIST }");
                 return true;
             }
+            else
+            {
+                error("}");
+            }
         }
     }
 
@@ -641,7 +658,7 @@ bool Parser::stmt_list()
     return true; // λ
 }
 
-// EXPRESSION → Identifier = EXPRESSION | RVALUE | true
+// EXPRESSION → Identifier = EXPRESSION | RVALUE
 bool Parser::expression()
 {
     if (token == end) { return false; }
@@ -663,17 +680,12 @@ bool Parser::expression()
         }
     }
 
-    // RVALUE may also contain Identifier, so backtrack here
+    // Reset token since I can't remove the unit production from RVALUE
     token = temp;
 
     if (rvalue())
     {
         debug("EXPRESSION -> RVALUE");
-        return true;
-    }
-    else if (equals("true"))
-    {
-        debug("EXPRESSION -> true");
         return true;
     }
 
@@ -908,7 +920,7 @@ bool Parser::term2()
     return true; // λ
 }
 
-// FACTOR → ( EXPRESSION ) | - FACTOR | + FACTOR | Identifier | Integer | Float | String
+// FACTOR → ( EXPRESSION ) | - FACTOR | + FACTOR | Identifier | VALUE
 bool Parser::factor()
 {
     if (token == end) { return false; }
@@ -954,19 +966,41 @@ bool Parser::factor()
         debug("FACTOR -> Identifier");
         return true;
     }
-    else if (equals(Tokenizer::Integer))
+    else if (value())
     {
-        debug("FACTOR -> Integer");
+        debug("FACTOR -> VALUE");
+        return true;
+    }
+
+    token = temp;
+    return false;
+}
+
+// VALUE → Integer | Float | String | Boolean
+bool Parser::value()
+{
+    if (token == end) { return false; }
+    auto temp = token;
+
+    if (equals(Tokenizer::Integer))
+    {
+        debug("VALUE -> Integer");
         return true;
     }
     else if (equals(Tokenizer::Float))
     {
-        debug("FACTOR -> Float");
+        debug("VALUE -> Float");
         return true;
     }
     else if (equals(Tokenizer::String))
     {
-        debug("FACTOR -> String");
+        debug("VALUE -> String");
+        return true;
+
+    }
+    else if (equals(Tokenizer::Boolean))
+    {
+        debug("VALUE -> Boolean");
         return true;
     }
 

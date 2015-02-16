@@ -94,7 +94,7 @@ class Parser
         // STMT_LIST → STATEMENT STMT_LIST | λ
         bool stmt_list();
 
-        // EXPRESSION → Identifier = EXPRESSION | RVALUE | true
+        // EXPRESSION → Identifier = EXPRESSION | RVALUE
         bool expression();
 
         // RVALUE → MAG RVALUE2
@@ -118,8 +118,11 @@ class Parser
         // TERM2 → * FACTOR TERM2 | / FACTOR TERM 2 | λ
         bool term2();
 
-        // FACTOR → ( EXPRESSION ) | - FACTOR | + FACTOR | Identifier | Integer | Float | String
+        // FACTOR → ( EXPRESSION ) | - FACTOR | + FACTOR | Identifier | VALUE
         bool factor();
+
+        // VALUE → Integer | Float | String | Boolean
+        bool value();
 
         // Helper function that returns true if equality exists at current position, incrementing iterator if true
         bool equals(Tokenizer::TokenType type);

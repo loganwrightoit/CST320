@@ -74,7 +74,7 @@ int main(int argc, char* argv[])
     // Begin analyzing code
 
     std::string line;
-    int lineNum = -3;
+    int lineNum = 0;
     while (std::getline(file, line))
     {
         ++lineNum;

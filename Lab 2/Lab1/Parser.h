@@ -19,7 +19,6 @@
 #include "Tokenizer.h"
 #include "SymbolTable.h"
 #include <vector>
-#include <stack>
 
 class Parser
 {
@@ -136,7 +135,10 @@ class Parser
         void debug(char* msg);
 
         // Prints syntax error with expected token value
-        void error(char* expected);
+        void expected(char* expected);
+
+        // Prints syntax error with expected token value
+        void error(char* error);
 
         // Adds symbol to symbol table
         void addSymbol(Symbol::Use use);
@@ -151,7 +153,7 @@ class Parser
         Symbol::Type lastType;
 
         // Stores parsed elements in LIFO container for output after parsing
-        std::stack<char*> results;
+        std::vector<char*> results;
 
         // Stores symbols
         SymbolTable symbolTable;

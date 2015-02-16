@@ -81,6 +81,14 @@ class SymbolTable
         *        Entry: None.
         *
         *         Exit: Returns number of entries in symbol table.
+        *
+        *   void print()
+        *
+        *      Purpose: Prints symbol table contents to console.
+        *
+        *        Entry: None.
+        *
+        *         Exit: None.
         ***********************************************************************/
 
         bool add(Symbol symbol);
@@ -88,6 +96,7 @@ class SymbolTable
         Symbol* find(std::string name);
         bool remove(std::string name);
         int size();
+        void print();
 
     private:
 

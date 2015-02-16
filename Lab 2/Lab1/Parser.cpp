@@ -76,6 +76,37 @@ bool Parser::equals(char* input)
 
 bool Parser::parse(std::vector<Tokenizer::Token> tokens)
 {
+    // For simplicity, we'll populate symbol table first
+    // and fill in symbol value and use later while parsing.
+    cout << "Number tokens: " << tokens.size() << endl;
+    auto iter = tokens.begin();
+    while (iter != tokens.end())
+    {
+        if (iter->type() == Tokenizer::Identifier)
+        {
+            Symbol::Type __type = Symbol::UnknownType;
+            if (iter->value() == "int")
+            {
+                __type = Symbol::Integer;
+            }
+            else if (iter->value() == "float")
+            {
+                __type = Symbol::Float;
+            }
+            else if (iter->value() == "bool")
+            {
+                __type = Symbol::Bool;
+            }
+            else if (iter->value() == "string")
+            {
+                __type = Symbol::String;
+            }             
+
+            symbolTable.add(Symbol(iter->value().c_str(), __type, Symbol::UnknownUse, ""));
+        }
+        ++iter;
+    }
+
     token = tokens.begin();
     end = tokens.end();
 
@@ -91,6 +122,9 @@ bool Parser::parse(std::vector<Tokenizer::Token> tokens)
         results.pop();
     }
 
+    // Print symbol table
+    symbolTable.print();
+
     return result;
 }
 
@@ -100,12 +134,21 @@ bool Parser::function()
     if (token == end) { return false; }
     auto temp = token;    
     
+    Tokenizer::TokenType __type = token->type();
     if (type())
     {
+        std::string __val = token->value();
         debug("FUNCTION -> TYPE");
         if (token == end) { return false; }
         if (equals(Tokenizer::Identifier))
         {
+            // Fill token use
+            Symbol* symbol = symbolTable.find((token - 1)->value());
+            if (symbol != NULL)
+            {
+                symbol->setUse(Symbol::FunctionName);
+            }
+
             debug("FUNCTION -> TYPE Identifier");
             if (token == end) { return false; }
             if (equals("("))

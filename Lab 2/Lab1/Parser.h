@@ -17,6 +17,7 @@
 
 #pragma once
 #include "Tokenizer.h"
+#include "SymbolTable.h"
 #include <vector>
 #include <stack>
 
@@ -145,6 +146,9 @@ class Parser
 
         // Stores parsed elements in LIFO container for output after parsing
         std::stack<char*> results;
+
+        // Stores symbols
+        SymbolTable symbolTable;
 
 };
 

@@ -30,19 +30,18 @@ class Symbol
         enum Type
         {
             Bool,
-            Int,
+            Integer,
             Float,
-            String
+            String,
+            UnknownType
         };
 
         // How the symbol is used
         enum Use
         {
             VariableName,
-            Constant,
             FunctionName,
-            ClassName,
-            TypeName
+            UnknownUse
         };
 
         Symbol(std::string name, Type type, Use use, std::string value);
@@ -76,6 +75,14 @@ class Symbol
         *
         *		  Exit:	A Use enumerator.
         *
+        *	void setUse(Use inUse)
+        *
+        *      Purpose: Sets symbol use.
+        *
+        *		 Entry:	Symbol::Use value.
+        *
+        *		  Exit:	None.
+        *
         *	std::string getValue() const
         *
         *      Purpose: Returns the string value of the symbol, such as when
@@ -89,6 +96,7 @@ class Symbol
         std::string getName() const;
         Type getType() const;
         Use getUse() const;
+        void setUse(Use inUse);
         std::string getValue() const;
 
     private:

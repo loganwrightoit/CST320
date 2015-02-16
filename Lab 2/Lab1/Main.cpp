@@ -44,9 +44,6 @@ static StateMachine stateMachine;
 // Stores token and type
 std::vector<Tokenizer::Token> tokens;
 
-// Stores symbols
-static SymbolTable symbolTable;
-
 // Parser object
 static Parser parser;
 

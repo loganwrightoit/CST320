@@ -66,6 +66,18 @@ Symbol::Use Symbol::getUse() const
 };
 
 /**************************************************************
+*   Entry:  Symbol::Use value.
+*
+*    Exit:  None.
+*
+* Purpose:  Sets symbol use.
+***************************************************************/
+void Symbol::setUse(Use inUse)
+{
+    _use = inUse;
+}
+
+/**************************************************************
 *   Entry:  None.
 *
 *    Exit:  A string representing a value.

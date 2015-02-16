@@ -20,6 +20,7 @@
 
 #include "SymbolTable.h"
 
+#include <iostream>
 #include <string>
 #include <map>
 
@@ -29,6 +30,26 @@ SymbolTable::SymbolTable()
 
 SymbolTable::~SymbolTable()
 {
+}
+
+/**************************************************************
+*   Entry:  None.
+*
+*    Exit:  None.
+*
+* Purpose:  Prints symbol table contents to console.
+***************************************************************/
+void SymbolTable::print()
+{
+    std::cout << "Symbol table contents" << std::endl;
+    std::cout << "---------------------" << std::endl;
+    
+    auto iter = _table.begin();
+    while (iter != _table.end())
+    {
+        std::cout << "Name(" << iter->second.getName() << "), " << ", Use(" << iter->second.getUse() << "), " << "Value(" << iter->second.getValue() << ")" << std::endl;
+        ++iter;
+    }
 }
 
 /**************************************************************
@@ -77,7 +98,7 @@ Symbol* SymbolTable::find(std::string name)
     auto result = _table.find(name);
     if (result != _table.end())
     {
-        symbol = &(result->second);
+        symbol = &result->second;
     }
 
     return symbol;

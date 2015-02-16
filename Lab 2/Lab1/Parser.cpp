@@ -50,18 +50,31 @@ void Parser::error(char* error)
 
 void Parser::addSymbol(Symbol::Use use)
 {
-    // If symbol exists, skip
-    auto prev = token - 2;
     auto current = token - 1;
-    auto result = symbolTable.find(current->value());
-    if (result == nullptr)
+
+    // Symbol must be declared before use
+    if (lastType == Symbol::UnknownType)
     {
-        symbolTable.add(Symbol(current->value().c_str(), lastType, use, ""));
+        if (symbolTable.find(current->value()) == nullptr)
+        {
+            error("Symbol Undefined");
+        }
     }
     else
     {
-        error("Symbol Redefinition");
+        // If symbol exists, skip
+        auto result = symbolTable.find(current->value());
+        if (result == nullptr)
+        {
+            symbolTable.add(Symbol(current->value().c_str(), lastType, use, ""));
+        }
+        else
+        {
+            error("Symbol Redefinition");
+        }
     }
+
+    lastType = Symbol::UnknownType;
 }
 
 bool Parser::equals(Tokenizer::TokenType type)
@@ -722,6 +735,8 @@ bool Parser::expression()
 
     if (equals(Tokenizer::Identifier))
     {
+        addSymbol(Symbol::VariableName);
+
         debug("EXPRESSION -> Identifier");
         if (token == end) { return false; }
         if (equals("="))

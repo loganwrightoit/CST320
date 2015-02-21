@@ -48,14 +48,11 @@ std::vector<Tokenizer::Token> tokens;
 // Recursive descent parser object
 static Parser parser;
 
-// LL1 table parser object
-static LL1_TableParser tableParser("grammar.txt");
-
 //
 // Forward declarations
 //
 void parseUsingRecursiveDescent();
-void parseUsingLL1Table();
+void parseUsingLL1Table(LL1_TableParser parserObject);
 void printTokens();
 
 //
@@ -63,16 +60,16 @@ void printTokens();
 //
 int main(int argc, char* argv[])
 {
-    if (argc < 2)
+    if (argc < 3)
     {
-        cout << "ERROR: Must supply filename for code sample." << endl;
+        cout << "ERROR: Must supply filename for grammar.txt and code.txt" << endl;
         return 1;
     }
 
     // Open file
-    file.open(argv[1]);
+    file.open(argv[2]);
     if (!file.is_open()) {
-        cerr << "ERROR: could not open file " << argv[1] << ", exiting." << endl;
+        cerr << "ERROR: could not open file " << argv[2] << ", exiting." << endl;
         return 1;
     }
 
@@ -104,7 +101,7 @@ int main(int argc, char* argv[])
     }
 
     //parseUsingRecursiveDescent();
-    parseUsingLL1Table();
+    parseUsingLL1Table(LL1_TableParser(argv[1]));
     //printTokens();
 
     return 0;
@@ -132,9 +129,9 @@ void parseUsingRecursiveDescent()
 * Purpose:  Parses tokens contained in global token vector using
 *           LL1 table implementation.
 ***************************************************************/
-void parseUsingLL1Table()
+void parseUsingLL1Table(LL1_TableParser parserObject)
 {
-    bool result = tableParser.parse(tokens);
+    bool result = parserObject.parse(tokens);
     cout << "\n[LL1_PARSER]: " << (result ? "Yes" : "No") << endl;
 }
 

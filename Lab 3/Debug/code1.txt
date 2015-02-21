@@ -1,0 +1,5 @@
+// Good
+a b c b a
+
+// Bad
+//a b b b a

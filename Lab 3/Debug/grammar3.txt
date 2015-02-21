@@ -1,0 +1,10 @@
+//This is the LL(1) table for the following grammar:
+//
+//  S -> aSa
+//  S -> b
+//
+//
+S a a S a
+S b b
+A a S b
+A b a

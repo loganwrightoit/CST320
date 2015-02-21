@@ -1,7 +1,7 @@
 /***********************************************************
 * Author:                   Logan Wright
 * Date Created:             01/16/2015
-* Last Modification Date:   02/08/2015
+* Last Modification Date:   02/16/2015
 * Lab Number:               CST 320 Lab 2
 * Filename:                 Main.cpp
 *

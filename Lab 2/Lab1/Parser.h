@@ -1,7 +1,7 @@
 ﻿/***********************************************************
 * Author:                   Logan Wright
 * Date Created:             02/06/2015
-* Last Modification Date:   02/08/2015
+* Last Modification Date:   02/16/2015
 * Lab Number:               CST 320 Lab 2
 * Filename:                 Parser.h
 *
@@ -133,6 +133,9 @@ class Parser
 
         // Prints debug code showing last processed function
         void debug(char* msg);
+
+        // Prints code structure
+        void printStructure();
 
         // Prints syntax error with expected token value
         void expected(char* expected);

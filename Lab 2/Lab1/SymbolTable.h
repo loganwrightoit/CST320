@@ -1,7 +1,7 @@
 /***********************************************************
 * Author:                   Logan Wright
 * Date Created:             01/09/2015
-* Last Modification Date:   01/12/2015
+* Last Modification Date:   02/16/2015
 * Lab Number:               CST 320 Lab 1
 * Filename:                 SymbolTable.h
 *

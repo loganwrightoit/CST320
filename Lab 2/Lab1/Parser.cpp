@@ -1,7 +1,7 @@
 ﻿/***********************************************************
 * Author:                   Logan Wright
 * Date Created:             02/06/2015
-* Last Modification Date:   02/08/2015
+* Last Modification Date:   02/16/2015
 * Lab Number:               CST 320 Lab 2
 * Filename:                 Parser.cpp
 *
@@ -17,6 +17,8 @@
 
 #include "Parser.h"
 #include <iostream>
+#include <iomanip>
+
 using namespace std;
 
 Parser::Parser()
@@ -109,6 +111,20 @@ bool Parser::equals(char* input)
     return false;
 }
 
+void Parser::printStructure()
+{
+    cout << '\n' << setw(20) << left << "Code File Structure" << endl;
+    cout << setfill('-') << setw(40) << "-" << setfill(' ') << endl;
+
+    auto iter = results.begin();
+    while (iter != results.end())
+    {
+        char* result = *iter;
+        std::cout << result << endl;
+        ++iter;
+    }
+}
+
 bool Parser::parse(std::vector<Tokenizer::Token> tokens)
 {
     token = tokens.begin();
@@ -119,14 +135,8 @@ bool Parser::parse(std::vector<Tokenizer::Token> tokens)
 
     bool result = function();
 
-    // Print structures
-    auto iter = results.begin();
-    while (iter != results.end())
-    {
-        char* result = *iter;
-        std::cout << result << endl;
-        ++iter;
-    }
+    // Print structure of code file
+    printStructure();
 
     // Print symbol table
     symbolTable.print();
@@ -281,6 +291,7 @@ bool Parser::declaration()
             if (token == end) { return false; }
             if (equals(";"))
             {
+                results.push_back("Declaration");
                 debug("DECLARATION -> TYPE IDENT_LIST ;");
                 return true;
             }
@@ -557,6 +568,7 @@ bool Parser::while_stmt()
 
     if (equals("while"))
     {
+        results.push_back("WhileStatement");
         debug("WHILE_STMT -> while");
         if (token == end) { return false; }
         if (equals("("))
@@ -574,7 +586,6 @@ bool Parser::while_stmt()
                     if (statement())
                     {
                         debug("WHILE_STMT -> while ( EXPRESSION ) STATEMENT");
-                        results.push_back("WhileStatement");
                         return true;
                     }
                 }
@@ -602,6 +613,7 @@ bool Parser::if_stmt()
 
     if (equals("if"))
     {
+        results.push_back("IfStatement");
         debug("IF_STMT -> if");
         if (token == end) { return false; }
         if (equals("("))
@@ -623,7 +635,6 @@ bool Parser::if_stmt()
                         if (elsepart())
                         {
                             debug("IF_STMT -> if ( EXPRESSION ) STATEMENT ELSEPART");
-                            results.push_back("IfStatement");
                             return true;
                         }
                     }
@@ -656,12 +667,12 @@ bool Parser::elsepart()
 
     if (equals("else"))
     {
+        results.push_back("ElseStatement");
         debug("ELSEPART -> else");
         if (token == end) { return false; }
         if (statement())
         {
             debug("ELSEPART -> else STATEMENT");
-            results.push_back("ElseStatement");
             return true;
         }
     }

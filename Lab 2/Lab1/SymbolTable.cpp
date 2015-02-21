@@ -21,8 +21,11 @@
 #include "SymbolTable.h"
 
 #include <iostream>
+#include <iomanip>
 #include <string>
 #include <map>
+
+using namespace std;
 
 SymbolTable::SymbolTable()
 {
@@ -41,13 +44,13 @@ SymbolTable::~SymbolTable()
 ***************************************************************/
 void SymbolTable::print()
 {
-    std::cout << "Symbol table contents" << std::endl;
-    std::cout << "---------------------" << std::endl;
+    cout << '\n' << setw(20) << left << "Symbol Name" << "Symbol Use" << endl;
+    cout << setfill('-') << setw(40) << "-" << setfill(' ') << endl;
     
     auto iter = _table.begin();
     while (iter != _table.end())
     {
-        std::cout << "Name(" << iter->second.getName() << "), " << ", Use(" << iter->second.getUse() << "), " << "Value(" << iter->second.getValue() << ")" << std::endl;
+        cout << setw(20) << iter->second.getName() << (iter->second.getUse() == Symbol::FunctionName ? "FunctionName" : "VariableName") << endl;
         ++iter;
     }
 }

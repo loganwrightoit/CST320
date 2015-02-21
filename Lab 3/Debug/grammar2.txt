@@ -1,10 +1,15 @@
 //This is the LL(1) table for the following grammar:
 //
-//  S -> aSa
-//  S -> b
+// S -> LINE Integer Integer Integer Integer S
+// S -> CIRCLE Integer Integer Integer S
+// S -> PIXEL Integer Integer S
+// S -> RECT Integer Integer Integer Integer S
+// S -> DEFINE Identifier S end S
+// S -> ID S
+// S -> lambda
 //
-//
-S a a S a
-S b b
-A a S b
-A b a
+
+//S a a S a
+//S b b
+//A a S b
+//A b a

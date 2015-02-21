@@ -153,12 +153,7 @@ bool LL1_TableParser::parse(std::vector<Tokenizer::Token> tokens)
         }
         else // top of stack is terminal, check against first token
         {
-            // Check for empty input and end terminator
-            if (tokens.empty() && _stack.top() == "$")
-            {
-                return true;
-            }
-            else if (!_stack.empty() && tokens.size() > 0 && _stack.top() == tokens.at(0).value())
+            if (!_stack.empty() && tokens.size() > 0 && _stack.top() == tokens.at(0).value())
             {
                 // Pop token and stack
                 pop_front(tokens);
@@ -166,12 +161,16 @@ bool LL1_TableParser::parse(std::vector<Tokenizer::Token> tokens)
             }
             else
             {
-                // There is no entry in the parser table for[a, $]
-
                 std::cerr << "There is no entry in the parser table for [" << _stack.top().c_str() << ", " << tokens.begin()->value() << "]" << std::endl;
                 return false;
             }
         }
+    }
+    
+    // If input string is not empty, and contains more than EOF, it's bad
+    if (!tokens.empty() && !(tokens.size() == 1 && tokens.at(0).value() == "$"))
+    {
+        return false;
     }
 
     return true;

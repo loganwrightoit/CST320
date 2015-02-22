@@ -20,7 +20,7 @@ class LL1_TableParser
 
     private:
 
-        bool isTerminal();
+        bool isNonTerminal();
 
         template<typename T>
         void pop_front(std::vector<T>& vec)
@@ -29,15 +29,18 @@ class LL1_TableParser
             vec.erase(vec.begin());
         }
 
-        std::stack<std::string> _stack;
+        // For reversing tokens so they input to stack in correct order
+        std::vector<std::string> reverse(std::vector<std::string> &v1)
+        {
+            std::vector<std::string> v2;
+            size_t i = v1.size();
+            while (i > 0)
+                v2.push_back(v1[--i]);
+            return v2;
+        }
 
-        //  S -> aSa
-        //  S -> b
-        //
-        // In table:
-        // S  a  a S a
-        // S  b  b
-        std::map<std::string, std::map<std::string, std::vector<std::string>>> table;
+        std::stack<std::string> _stack;
+        std::map<std::string, std::map<std::string, std::vector<std::string>>> _table;
 
 };
 

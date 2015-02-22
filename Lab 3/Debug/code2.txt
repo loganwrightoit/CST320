@@ -1,1 +1,5 @@
-a a a b b a a
+// Good
+Define temp Rect 1 1 1 1 end
+
+// Bad
+//Define Circle Pixel 1 1 end

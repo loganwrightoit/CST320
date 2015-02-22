@@ -6,8 +6,6 @@
 #include <cctype>
 #include <iomanip>
 
-using namespace std;
-
 LL1_TableParser::LL1_TableParser(std::string fileName)
 {
     std::ifstream file;
@@ -49,8 +47,8 @@ LL1_TableParser::LL1_TableParser(std::string fileName)
                 // Extract tokens for parsing
                 std::vector<std::string> tkns(tokens.begin() + 2, tokens.end());
 
-                auto rule_map = table.find(nonTerminal);
-                if (rule_map != table.end())
+                auto rule_map = _table.find(nonTerminal);
+                if (rule_map != _table.end())
                 {
                     // Rule exists, just need to add token and tokens
                     auto result = rule_map->second.insert(std::make_pair(terminal, tkns));
@@ -65,7 +63,7 @@ LL1_TableParser::LL1_TableParser(std::string fileName)
                     // Rule does not exist, need to add rule token and tokens together
                     std::map<std::string, std::vector<std::string>> new_map;
                     new_map.insert(std::make_pair(terminal, tkns));
-                    table.insert(std::make_pair(nonTerminal, new_map));
+                    _table.insert(std::make_pair(nonTerminal, new_map));
                 }
 
                 // Output results of table insertion
@@ -98,7 +96,7 @@ bool LL1_TableParser::parse(std::vector<Tokenizer::Token> tokens)
     // Add EOF to input
     tokens.push_back(Tokenizer::Token(0, 0, Tokenizer::Boolean, "$"));
 
-    cout << left << setw(10) << "Stack" << setw(20) << "Input Buffer" << endl;
+    std::cout << std::left << std::setw(30) << "Stack" << std::setw(20) << "Input Buffer" << std::endl;
 
     while (!_stack.empty())
     {
@@ -107,22 +105,22 @@ bool LL1_TableParser::parse(std::vector<Tokenizer::Token> tokens)
         for (auto temp = _stack; !temp.empty(); temp.pop())
         {
             ++sz;
-            cout << setw(1) << temp.top().c_str();
+            std::cout << std::setw(1) << temp.top().c_str();
         }
-        cout << setw(10 - sz) << setfill(' ') << ' ';
+        std::cout << std::setw(30 - sz) << std::setfill(' ') << ' ';
 
         // Print input
         for (int idx = 0; idx < tokens.size(); ++idx)
         {
-            cout << tokens.at(idx).value().c_str();
+            std::cout << tokens.at(idx).value().c_str();
         }
-        cout << endl;
+        std::cout << std::endl;
 
-        if (isTerminal())
+        if (isNonTerminal())
         {
             // Check for terminal in table
-            auto _rule = table.find(_stack.top());
-            if (_rule != table.end())
+            auto _rule = _table.find(_stack.top());
+            if (_rule != _table.end())
             {
                 // Check for tokens or lambda, otherwise default failure applies
                 auto _toks = _rule->second.find(tokens.begin()->value());
@@ -131,12 +129,19 @@ bool LL1_TableParser::parse(std::vector<Tokenizer::Token> tokens)
                     // Pop non-terminal
                     _stack.pop();
 
-                    // Push matched tokens in place of non-terminal
-                    auto iter = _toks->second.begin();
-                    while (iter != _toks->second.end())
+                    // Check for lambda production (skip pushing tokens into stack)
+                    if (_toks->second.at(0) != "lambda")
                     {
-                        _stack.push(*iter);
-                        ++iter;
+                        // Flip tokens in vector for stack insertion
+                        std::vector<std::string> flip = reverse(_toks->second);
+
+                        // Push matched tokens in place of non-terminal
+                        auto iter = flip.begin();
+                        while (iter != flip.end())
+                        {
+                            _stack.push(*iter);
+                            ++iter;
+                        }
                     }
                 }
                 else
@@ -151,18 +156,31 @@ bool LL1_TableParser::parse(std::vector<Tokenizer::Token> tokens)
                 return false;
             }
         }
-        else // top of stack is terminal, check against first token
+        else
         {
-            if (!_stack.empty() && tokens.size() > 0 && _stack.top() == tokens.at(0).value())
+            if (!_stack.empty() && tokens.size() > 0)
             {
-                // Pop token and stack
-                pop_front(tokens);
-                _stack.pop();
-            }
-            else
-            {
-                std::cerr << "There is no entry in the parser table for [" << _stack.top().c_str() << ", " << tokens.begin()->value() << "]" << std::endl;
-                return false;
+                bool pop = false;
+
+                switch (tokens.at(0).type())
+                {
+                    case Tokenizer::Integer:
+                        pop = _stack.top() == "int";
+                        break;
+                    case Tokenizer::Float:
+                        pop = _stack.top() == "float";
+                        break;
+                    case Tokenizer::Identifier:
+                        pop = _stack.top() == "Identifier";
+                        break;
+                }
+
+                if (pop || _stack.top() == tokens.at(0).value())
+                {
+                    // Pop token and stack
+                    pop_front(tokens);
+                    _stack.pop();
+                }
             }
         }
     }
@@ -176,7 +194,19 @@ bool LL1_TableParser::parse(std::vector<Tokenizer::Token> tokens)
     return true;
 }
 
-bool LL1_TableParser::isTerminal()
+bool LL1_TableParser::isNonTerminal()
 {
-    return !_stack.empty() && !_stack.top().empty() && std::isupper(_stack.top()[0]);
+    if (!_stack.empty() && !_stack.top().empty())
+    {
+        if (_stack.top().length() == 1)
+        {
+            // Check for uppercase single letter non-terminal
+            return std::isupper(_stack.top()[0]);
+        }
+        else
+        {
+            // Check first two letters for upper casing
+            return std::isupper(_stack.top()[0]) && std::isupper(_stack.top()[1]);
+        }
+    }
 }

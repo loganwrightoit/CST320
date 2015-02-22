@@ -1,4 +1,23 @@
-﻿#include "LL1_TableParser.h"
+﻿/***********************************************************
+* Author:                   Logan Wright
+* Date Created:             02/20/2015
+* Last Modification Date:   02/21/2015
+* Lab Number:               CST 320 Lab 3
+* Filename:                 LL1_TableParser.cpp
+*
+* Overview:
+*   Parses a vector of tokens using an LL1 table
+*   implementation.
+*
+* Input:
+*   No input.
+*
+* Output:
+*   Prints the contents of the stack and remaining input
+*   tokens after every operation.
+************************************************************/
+
+#include "LL1_TableParser.h"
 
 #include <fstream>
 #include <iostream>
@@ -126,7 +145,8 @@ bool LL1_TableParser::parse(std::vector<Tokenizer::Token> tokens)
             if (_rule != _table.end())
             {
                 // Check for tokens or lambda, otherwise default failure applies
-                auto _toks = _rule->second.find(tokens.begin()->value());
+                std::string searchTerm = tokens.begin()->type() == Tokenizer::Integer ? "Integer" : tokens.begin()->value();
+                auto _toks = _rule->second.find(searchTerm);
                 if (_toks != _rule->second.end())
                 {
                     // Pop non-terminal
@@ -168,10 +188,7 @@ bool LL1_TableParser::parse(std::vector<Tokenizer::Token> tokens)
                 switch (tokens.at(0).type())
                 {
                     case Tokenizer::Integer:
-                        pop = _stack.top() == "int";
-                        break;
-                    case Tokenizer::Float:
-                        pop = _stack.top() == "float";
+                        pop = _stack.top() == "Integer";
                         break;
                     case Tokenizer::Identifier:
                         pop = _stack.top() == "Identifier";
@@ -183,6 +200,11 @@ bool LL1_TableParser::parse(std::vector<Tokenizer::Token> tokens)
                     // Pop token and stack
                     pop_front(tokens);
                     _stack.pop();
+                }
+                else
+                {
+                    std::cerr << "LL1_ParserTable: unable to match terminal" << std::endl;
+                    return false;
                 }
             }
         }
@@ -197,6 +219,15 @@ bool LL1_TableParser::parse(std::vector<Tokenizer::Token> tokens)
     return true;
 }
 
+/**********************************************************************
+*	bool isNonTerminal()
+*
+*      Purpose: Checks if currently loaded token is a non-terminal.
+*
+*		 Entry:	None.
+*
+*		  Exit:	True if first token is non-terminal.
+***********************************************************************/
 bool LL1_TableParser::isNonTerminal()
 {
     if (!_stack.empty() && !_stack.top().empty())

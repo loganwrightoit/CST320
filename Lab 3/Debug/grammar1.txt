@@ -1,8 +1,8 @@
-//This is the LL(1) table for the following grammar:
+// This is the LL(1) table for the following grammar:
 //
-//  S -> aSa
-//  S -> bSb
-//  S -> c
+// S -> aSa
+// S -> bSb
+// S -> c
 //
 
 S a a S a

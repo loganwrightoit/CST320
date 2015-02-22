@@ -1,18 +1,18 @@
 // This is the LL(1) table for the following grammar:
 //
-// S -> Line int int int int S
-// S -> circle int int int S
-// S -> Pixel int int S
-// S -> Rect int int int int S
+// S -> Line Integer Integer Integer Integer S
+// S -> circle Integer Integer Integer S
+// S -> Pixel Integer Integer S
+// S -> Rect Integer Integer Integer Integer S
 // S -> Define Identifier S end S
 // S -> Identifier S
 // S -> lambda
 //
 
-S Line Line int int int int S
-S Circle Circle int int int S
-S Pixel Pixel int int S
-S Rect Rect int int int int S
+S Line Line Integer Integer Integer Integer S
+S Circle Circle Integer Integer Integer S
+S Pixel Pixel Integer Integer S
+S Rect Rect Integer Integer Integer Integer S
 S Define Define Identifier S end S
 S Identifier Identifier S
 S end lambda

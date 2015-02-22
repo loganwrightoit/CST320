@@ -1,10 +1,22 @@
-//This is the LL(1) table for the following grammar:
+// This is the LL(1) table for the following grammar:
 //
-//  S -> aSa
-//  S -> b
+// FUNCTION -> int Identifier ( ARG ) { STMT }
+// ARG -> int Identifier
+// STMT -> int Identifier = EXPR ;
+// EXPR -> Identifier EXPR2
+// EXPR -> Integer EXPR2
+// EXPR2 -> + EXPR
+// EXPR2 -> - EXPR
+// EXPR2 -> lambda
 //
-//
-S a a S a
-S b b
-A a S b
-A b a
+
+FUNCTION int int Identifier ( ARG ) { STMT }
+ARG int int Identifier
+ARG ) lambda
+STMT int int Identifier = EXPR ;
+STMT } lambda
+EXPR Identifier Identifier EXPR2
+EXPR Integer Integer EXPR2
+EXPR2 + + EXPR
+EXPR2 - - EXPR
+EXPR2 ; lambda

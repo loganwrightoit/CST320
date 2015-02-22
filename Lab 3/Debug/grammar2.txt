@@ -16,3 +16,4 @@ S Rect Rect int int int int S
 S Define Define Identifier S end S
 S Identifier Identifier S
 S end lambda
+S $ lambda

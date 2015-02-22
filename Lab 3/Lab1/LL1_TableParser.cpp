@@ -96,25 +96,28 @@ bool LL1_TableParser::parse(std::vector<Tokenizer::Token> tokens)
     // Add EOF to input
     tokens.push_back(Tokenizer::Token(0, 0, Tokenizer::Boolean, "$"));
 
-    std::cout << std::left << std::setw(30) << "Stack" << std::setw(20) << "Input Buffer" << std::endl;
+    std::cout << std::endl << std::left << std::setw(30) << "Stack" << std::setw(20) << "Input Buffer" << std::endl;
+    std::cout << std::setw(50) << std::setfill('-') << '-' << std::endl;
 
     while (!_stack.empty())
     {
         // Print stack
         size_t sz = 0;
+        std::string str;
         for (auto temp = _stack; !temp.empty(); temp.pop())
         {
+            str.append(temp.top());
             ++sz;
-            std::cout << std::setw(1) << temp.top().c_str();
         }
-        std::cout << std::setw(30 - sz) << std::setfill(' ') << ' ';
+        std::cout << std::setw(30) << std::setfill(' ') << str.c_str();
 
         // Print input
+        std::string str2;
         for (int idx = 0; idx < tokens.size(); ++idx)
         {
-            std::cout << tokens.at(idx).value().c_str();
+            str2.append(tokens.at(idx).value());
         }
-        std::cout << std::endl;
+        std::cout << std::setw(20) << str2.c_str() << std::endl;
 
         if (isNonTerminal())
         {

@@ -24,6 +24,7 @@ using namespace std;
 
 Parser::Parser()
 {
+    definition = false;
 }
 
 Parser::~Parser()
@@ -47,7 +48,7 @@ void Parser::addSymbol(Symbol::Use use)
     auto current = token - 1;
 
     // Symbol must be declared before use
-    if (lastType == Symbol::UnknownType)
+    if (!definition && lastType == Symbol::UnknownType)
     {
         if (symbolTable.find(current->value()) == nullptr)
         {
@@ -60,6 +61,7 @@ void Parser::addSymbol(Symbol::Use use)
         auto result = symbolTable.find(current->value());
         if (result == nullptr)
         {
+            cout << "Adding symbol: " << current->value().c_str() << endl;
             symbolTable.add(Symbol(current->value().c_str(), lastType, use, ""));
         }
         else
@@ -358,12 +360,18 @@ bool Parser::ident_list(int level)
     if (token == end) { return false; }
     auto temp = token;
 
+    // Change state for defining identifiers
+    definition = true;
+
     addBranch(level++, "<IDENTIFIER LIST>");
     if (equals(Tokenizer::Identifier))
     {
+
+        // Add identifier and value to symbol table
         addBranch(level, "<Identifier>");
         addBranch(level + 1, (token - 1)->value());
         addSymbol(Symbol::VariableName);
+
         if (token == end) { return false; }
         if (ident_list2(level))
         {
@@ -379,13 +387,29 @@ bool Parser::ident_list(int level)
     return false;
 }
 
-// IDENT_LIST2 → = EXPRESSION IDENT_LIST3 | IDENT_LIST3
+// IDENT_LIST2 → ( EXPRESSION ) IDENT_LIST3 | = EXPRESSION IDENT_LIST3 | IDENT_LIST3
 bool Parser::ident_list2(int level)
 {
     if (token == end) { return false; }
     auto temp = token;
 
-    if (equals("="))
+    if (equals("("))
+    {
+        if (token == end) { return false; }
+        if (expression(level))
+        {
+            if (token == end) { return false; }
+            if (equals(")"))
+            {
+                if (token == end) { return false; }
+                if (ident_list3(level))
+                {
+                    return true;
+                }
+            }
+        }
+    }
+    else if (equals("="))
     {
         if (token == end) { return false; }
         if (expression(level))
@@ -424,11 +448,12 @@ bool Parser::ident_list3(int level)
         }
     }
 
+    definition = false;
     token = temp;
     return true; // λ
 }
 
-// STATEMENT → FOR_STMT | WHILE_STMT | EXPRESSION ; | IF_STMT | COMPOUND_STMT | DECLARATION | ;
+// STATEMENT → FOR_STMT | WHILE_STMT | EXPRESSION ; | STREAM_STMT ; | IF_STMT | COMPOUND_STMT | DECLARATION | ;
 bool Parser::statement(int level)
 {
     if (token == end) { return false; }
@@ -444,6 +469,18 @@ bool Parser::statement(int level)
         return true;
     }
     else if (expression(level))
+    {
+        if (token == end) { return false; }
+        if (equals(";"))
+        {
+            return true;
+        }
+        else
+        {
+            expected(";");
+        }
+    }
+    else if (stream_stmt(level))
     {
         if (token == end) { return false; }
         if (equals(";"))
@@ -785,6 +822,82 @@ bool Parser::expression(int level)
     return false;
 }
 
+// STREAM_STMT → cout << EXPRESSION OSTREAM_LIST | cin >> Identifier
+bool Parser::stream_stmt(int level)
+{
+    if (token == end) { return false; }
+    auto temp = token;
+
+    addBranch(level++, "<STREAM STATEMENT>");
+    if (equals("cout"))
+    {
+        if (token == end) { return false; }
+        if (equals("<<"))
+        {
+            if (token == end) { return false; }
+            if (expression(level))
+            {
+                if (token == end) { return false; }
+                if (ostream_list(level))
+                {
+                    return true;
+                }
+            }
+        }
+    }
+    else if (equals("cin"))
+    {
+        if (token == end) { return false; }
+        if (equals(">>"))
+        {
+            if (token == end) { return false; }
+            if (equals(Tokenizer::Identifier))
+            {
+                return true;
+            }
+        }
+    }
+    else
+    {
+        popBranch();
+    }
+
+    token = temp;
+    return false;
+}
+
+// OSTREAM_LIST → << EXPRESSION OSTREAM_LIST | λ
+bool Parser::ostream_list(int level)
+{
+    if (token == end)
+    {
+        return true;
+    }
+    auto temp = token;
+
+    // Code here
+    addBranch(level++, "<OSTREAM LIST>");
+    if (equals("<<"))
+    {
+        if (token == end) { return false; }
+        if (expression(level))
+        {
+            if (token == end) { return false; }
+            if (ostream_list(level))
+            {
+                return true;
+            }
+        }
+    }
+    else
+    {
+        popBranch();
+    }
+
+    token = temp;
+    return true; // λ
+}
+
 // RVALUE → MAG RVALUE2
 bool Parser::rvalue(int level)
 {
@@ -967,7 +1080,7 @@ bool Parser::term(int level)
     return false;
 }
 
-// TERM2 → * FACTOR TERM2 | / FACTOR TERM2 | λ
+// TERM2 → * FACTOR TERM2 | / FACTOR TERM2 | % FACTOR TERM2 | λ
 bool Parser::term2(int level)
 {
     if (token == end)
@@ -1000,12 +1113,24 @@ bool Parser::term2(int level)
             }
         }
     }
+    else if (equals("%"))
+    {
+        if (token == end) { return false; }
+        if (factor(level))
+        {
+            if (token == end) { return false; }
+            if (term2(level))
+            {
+                return true;
+            }
+        }
+    }
     
     token = temp;
     return true; // λ
 }
 
-// FACTOR → ( EXPRESSION ) | - FACTOR | + FACTOR | Identifier | VALUE
+// FACTOR → ( EXPRESSION ) | - FACTOR | + FACTOR | Identifier FACTOR2 | VALUE
 bool Parser::factor(int level)
 {
     if (token == end) { return false; }
@@ -1044,7 +1169,12 @@ bool Parser::factor(int level)
     {
         addBranch(level, "<Identifier>");
         addBranch(level + 1, (token - 1)->value());
-        return true;
+
+        if (token == end) { return false; }
+        if (factor2(level))
+        {
+            return true;
+        }
     }
     else if (value(level))
     {
@@ -1057,6 +1187,28 @@ bool Parser::factor(int level)
 
     token = temp;
     return false;
+}
+
+//FACTOR2 → ++ | -- | λ
+bool Parser::factor2(int level)
+{
+    if (token == end)
+    {
+        return true;
+    }
+    auto temp = token;
+
+    if (equals("++"))
+    {
+        return true;
+    }
+    else if (equals("--"))
+    {
+        return true;
+    }
+    
+    token = temp;
+    return true; // λ
 }
 
 // VALUE → Integer | Float | String | Boolean
@@ -1080,8 +1232,12 @@ bool Parser::value(int level)
     }
     else if (equals(Tokenizer::String))
     {
+        std::string str("\"");
+        str.append((token - 1)->value());
+        str.append("\"");
+
         addBranch(level, "<String>");
-        addBranch(level + 1, (token - 1)->value());
+        addBranch(level + 1, str);
         return true;
     }
     else if (equals(Tokenizer::Boolean))

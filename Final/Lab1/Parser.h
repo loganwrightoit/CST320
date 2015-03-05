@@ -65,13 +65,13 @@ class Parser
         // IDENT_LIST → Identifier IDENT_LIST2
         bool ident_list(int level);
 
-        // IDENT_LIST2 → = EXPRESSION IDENT_LIST3 | IDENT_LIST3
+        // IDENT_LIST2 → ( EXPRESSION ) IDENT_LIST3 | = EXPRESSION IDENT_LIST3 | IDENT_LIST3
         bool ident_list2(int level);
 
         // IDENT_LIST3 → , IDENT_LIST | λ
         bool ident_list3(int level);
 
-        // STATEMENT → FOR_STMT | WHILE_STMT | EXPRESSION ; | IF_STMT | COMPOUND_STMT | DECLARATION | ;
+        // STATEMENT → FOR_STMT | WHILE_STMT | EXPRESSION ; | STREAM_STMT ; | IF_STMT | COMPOUND_STMT | DECLARATION | ;
         bool statement(int level);
 
         // FOR_STMT → for ( DECLARATION OPT_EXPR ; OPT_EXPR ) STATEMENT
@@ -98,6 +98,12 @@ class Parser
         // EXPRESSION → Identifier = EXPRESSION | RVALUE
         bool expression(int level);
 
+        // STREAM_STMT → cout << EXPRESSION OSTREAM_LIST | cin >> Identifier
+        bool stream_stmt(int level);
+
+        // OSTREAM_LIST → << EXPRESSION OSTREAM_LIST | λ
+        bool ostream_list(int level);
+
         // RVALUE → MAG RVALUE2
         bool rvalue(int level);
 
@@ -116,11 +122,14 @@ class Parser
         // TERM → FACTOR TERM2
         bool term(int level);
 
-        // TERM2 → * FACTOR TERM2 | / FACTOR TERM 2 | λ
+        // TERM2 → * FACTOR TERM2 | / FACTOR TERM2 | % FACTOR TERM2 | λ
         bool term2(int level);
 
-        // FACTOR → ( EXPRESSION ) | - FACTOR | + FACTOR | Identifier | VALUE
+        // FACTOR → ( EXPRESSION ) | - FACTOR | + FACTOR | Identifier FACTOR2 | VALUE
         bool factor(int level);
+
+        //FACTOR2 → ++ | -- | λ
+        bool factor2(int level);
 
         // VALUE → Integer | Float | String | Boolean
         bool value(int level);
@@ -157,6 +166,9 @@ class Parser
 
         // Removes last branch from parse tree
         void popBranch();
+
+        // State used when defining identifiers
+        bool definition;
 
 };
 

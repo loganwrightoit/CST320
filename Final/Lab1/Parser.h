@@ -126,7 +126,7 @@ class Parser
         bool value(int level);
 
         // Helper function that returns true if equality exists at current position, incrementing iterator if true
-        bool equals(int level, Tokenizer::TokenType type);
+        bool equals(Tokenizer::TokenType type);
 
         // Helper function that returns true if equality exists at current position, incrementing iterator if true
         bool equals(char* input);

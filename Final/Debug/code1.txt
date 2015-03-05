@@ -1,4 +1,14 @@
-int main()
+int main(float arg1)
 {
-    int x = 10;
+    int x = 3;
+    int y = 1;
+    
+    while (x < 5) { int _int = (x < 5) * 3; float _float = 1.0f; x = x + 1; }
+    for (int i = 4; i < 5; i = i + 1)
+    {
+        string value = "Test";
+    }
+
+    if (x < 10)
+        int b = 200;
 }

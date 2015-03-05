@@ -71,7 +71,7 @@ void Parser::addSymbol(Symbol::Use use)
     lastType = Symbol::UnknownType;
 }
 
-bool Parser::equals(int level, Tokenizer::TokenType type)
+bool Parser::equals(Tokenizer::TokenType type)
 {
     if (type == token->type())
     {
@@ -79,9 +79,6 @@ bool Parser::equals(int level, Tokenizer::TokenType type)
         {
             return true;
         }
-
-        addBranch(level, "<Identifier>");
-        addBranch(level + 1, token->value());
 
         ++token;
         return true;
@@ -166,8 +163,10 @@ bool Parser::function(int level)
     if (type(level))
     {
         if (token == end) { return false; }
-        if (equals(level, Tokenizer::Identifier))
+        if (equals(Tokenizer::Identifier))
         {
+            addBranch(level, "<Identifier>");
+            addBranch(level + 1, (token - 1)->value());
             addSymbol(Symbol::FunctionName);
             if (token == end) { return false; }
             if (equals("("))
@@ -233,7 +232,6 @@ bool Parser::arg_list2(int level)
     }
     auto temp = token;
     
-    addBranch(level++, "<ARGUMENT>");
     if (equals(","))
     {
         if (token == end) { return false; }
@@ -247,7 +245,6 @@ bool Parser::arg_list2(int level)
         }
     }
 
-    addBranch(level, "lambda");
     token = temp;
     return true; // λ
 }
@@ -262,8 +259,10 @@ bool Parser::arg(int level)
     if (type(level))
     {
         if (token == end) { return false; }
-        if (equals(level, Tokenizer::Identifier))
+        if (equals(Tokenizer::Identifier))
         {
+            addBranch(level, "<Identifier>");
+            addBranch(level + 1, (token - 1)->value());
             addSymbol(Symbol::VariableName);
             return true;
         }
@@ -360,10 +359,11 @@ bool Parser::ident_list(int level)
     auto temp = token;
 
     addBranch(level++, "<IDENTIFIER LIST>");
-    if (equals(level, Tokenizer::Identifier))
+    if (equals(Tokenizer::Identifier))
     {
+        addBranch(level, "<Identifier>");
+        addBranch(level + 1, (token - 1)->value());
         addSymbol(Symbol::VariableName);
-
         if (token == end) { return false; }
         if (ident_list2(level))
         {
@@ -385,7 +385,6 @@ bool Parser::ident_list2(int level)
     if (token == end) { return false; }
     auto temp = token;
 
-    addBranch(level++, "<IDENT_LIST2>");
     if (equals("="))
     {
         if (token == end) { return false; }
@@ -402,10 +401,6 @@ bool Parser::ident_list2(int level)
     {
         return true;
     }
-    else
-    {
-        popBranch();
-    }
 
     token = temp;
     return false;
@@ -420,7 +415,6 @@ bool Parser::ident_list3(int level)
     }
     auto temp = token;
 
-    addBranch(level++, "<IDENT_LIST3>");
     if (equals(","))
     {
         if (token == end) { return false; }
@@ -430,7 +424,6 @@ bool Parser::ident_list3(int level)
         }
     }
 
-    addBranch(level, "lambda");
     token = temp;
     return true; // λ
 }
@@ -560,8 +553,11 @@ bool Parser::opt_expr(int level)
     {
         return true;
     }
+    else
+    {
+        popBranch();
+    }
 
-    addBranch(level, "lambda");
     token = temp;
     return true; // λ
 }
@@ -676,8 +672,11 @@ bool Parser::elsepart(int level)
             return true;
         }
     }
+    else
+    {
+        popBranch();
+    }
 
-    addBranch(level, "lambda");
     token = temp;
     return true; // λ
 }
@@ -727,7 +726,7 @@ bool Parser::stmt_list(int level)
     if (statement(level))
     {
         if (token == end) { return false; }
-        if (stmt_list(level))
+        if (stmt_list(level - 1))
         {
             return true;
         }
@@ -737,7 +736,6 @@ bool Parser::stmt_list(int level)
         popBranch();
     }
 
-    addBranch(level, "lambda");
     token = temp;
     return true; // λ
 }
@@ -749,8 +747,10 @@ bool Parser::expression(int level)
     auto temp = token;
 
     addBranch(level++, "<EXPRESSION>");
-    if (equals(level, Tokenizer::Identifier))
+    if (equals(Tokenizer::Identifier))
     {
+        addBranch(level, "<Identifier>");
+        addBranch(level + 1, (token - 1)->value());
         addSymbol(Symbol::VariableName);
         if (token == end) { return false; }
         if (equals("="))
@@ -764,6 +764,7 @@ bool Parser::expression(int level)
     }
     else
     {
+        level--;
         popBranch();
     }
 
@@ -817,7 +818,6 @@ bool Parser::rvalue2(int level)
     }
     auto temp = token;
 
-    addBranch(level++, "<RVALUE2>");
     if (compare(level))
     {
         if (token == end) { return false; }
@@ -831,7 +831,6 @@ bool Parser::rvalue2(int level)
         }
     }
 
-    addBranch(level, "lambda");
     token = temp;
     return true; // λ
 }
@@ -915,7 +914,6 @@ bool Parser::mag2(int level)
     }
     auto temp = token;
 
-    addBranch(level++, "<MAG2>");
     if (equals("+"))
     {
         if (token == end) { return false; }
@@ -941,7 +939,6 @@ bool Parser::mag2(int level)
         }
     }
 
-    addBranch(level, "lambda");
     token = temp;
     return true; // λ
 }
@@ -979,7 +976,6 @@ bool Parser::term2(int level)
     }
     auto temp = token;
 
-    addBranch(level++, "<TERM2>");
     if (equals("*"))
     {
         if (token == end) { return false; }
@@ -1005,7 +1001,6 @@ bool Parser::term2(int level)
         }
     }
     
-    addBranch(level, "lambda");
     token = temp;
     return true; // λ
 }
@@ -1045,8 +1040,10 @@ bool Parser::factor(int level)
             return true;
         }
     }
-    else if (equals(level, Tokenizer::Identifier))
+    else if (equals(Tokenizer::Identifier))
     {
+        addBranch(level, "<Identifier>");
+        addBranch(level + 1, (token - 1)->value());
         return true;
     }
     else if (value(level))
@@ -1069,21 +1066,28 @@ bool Parser::value(int level)
     auto temp = token;
 
     addBranch(level++, "<VALUE>");
-    if (equals(level, Tokenizer::Integer))
+    if (equals(Tokenizer::Integer))
     {
+        addBranch(level, "<Integer>");
+        addBranch(level + 1, (token - 1)->value());
         return true;
     }
-    else if (equals(level, Tokenizer::Float))
+    else if (equals(Tokenizer::Float))
     {
+        addBranch(level, "<Float>");
+        addBranch(level + 1, (token - 1)->value());
         return true;
     }
-    else if (equals(level, Tokenizer::String))
+    else if (equals(Tokenizer::String))
     {
+        addBranch(level, "<String>");
+        addBranch(level + 1, (token - 1)->value());
         return true;
-
     }
-    else if (equals(level, Tokenizer::Boolean))
+    else if (equals(Tokenizer::Boolean))
     {
+        addBranch(level, "<Boolean>");
+        addBranch(level + 1, (token - 1)->value());
         return true;
     }
     else

@@ -98,6 +98,7 @@ class SymbolTable
         bool remove(std::string name);
         int size();
         void print();
+        std::map<std::string, std::vector<Symbol>> getTable();
 
     private:
 

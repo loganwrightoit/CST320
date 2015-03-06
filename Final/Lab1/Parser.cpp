@@ -171,7 +171,53 @@ bool Parser::parse(std::vector<Tokenizer::Token> _tokens)
         }
     }
 
+    // Print system metrics to console
+    printSystemMetrics();
+
     return result;
+}
+
+void Parser::printSystemMetrics()
+{
+    cout << endl << setw(30) << "Program Analysis:" << endl;
+    cout << setw(35) << setfill('-') << '-' << setfill(' ') << endl;
+
+    // Total number of symbols in the program
+    int numSymbols = 0;
+    int totalIdentLen = 0;
+    auto table = _symbolTable.getTable();
+    auto iter = table.begin();
+    while (iter != table.end())
+    {
+        numSymbols += iter->second.size();
+
+        // Add length of identifiers for next step
+        auto iter2 = iter->second.begin();
+        while (iter2 != iter->second.end())
+        {
+            totalIdentLen += iter2->getName().size();
+            ++iter2;
+        }
+
+        ++iter;
+    }
+    cout << setw(30) << "Number of symbols" << numSymbols << endl;
+
+    // Average length of identifiers in the program
+    cout << setw(30) << "Avg Length of Identifiers" << totalIdentLen / numSymbols << endl;
+
+    // Average number of statements for compound statements
+
+
+    // Maximum number of scope levels for identifiers
+
+    // Number of if statements in the program
+
+    // Number of while loops in the program
+
+    // Number of input/output statements in the program
+
+    // Number of functions in the program
 }
 
 void Parser::addBranch(int level, std::string inStr)

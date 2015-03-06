@@ -155,6 +155,9 @@ class Parser
         // Removes last branch from parse tree
         void popBranch();
 
+        // Some debug output for project
+        void printSystemMetrics();
+
         // Stores current position in tokens vector
         std::vector<Tokenizer::Token>::iterator _token, _end;
 

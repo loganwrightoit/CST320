@@ -27,6 +27,4 @@ int main()
         }
         cout << whole << " " << num << " / " << den;
     }
-    
-    int lastVar = scopedVar + 1;
 }

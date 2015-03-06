@@ -35,6 +35,11 @@ SymbolTable::~SymbolTable()
 {
 }
 
+std::map<std::string, std::vector<Symbol>> SymbolTable::getTable()
+{
+    return _table;
+}
+
 /**************************************************************
 *   Entry:  None.
 *

@@ -17,7 +17,6 @@
 ************************************************************/
 
 #include "Tokenizer.h"
-#include "Preprocessor.h"
 #include "StateMachine.h"
 #include "Parser.h"
 #include "LL1_TableParser.h"
@@ -35,9 +34,6 @@ std::ifstream file;
 
 // Tokenizer object
 static Tokenizer tokenizer;
-
-// Preprocessor object
-static Preprocessor preprocessor;
 
 // State machine object
 static StateMachine stateMachine;
@@ -81,7 +77,6 @@ int main(int argc, char* argv[])
     {
         ++lineNum;
         size_t initLen = line.length();
-        line = preprocessor.run(line);
 
         // Avoid printing lines preprocessed to empty strings
         if (line.length() >= initLen)

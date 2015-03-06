@@ -44,7 +44,7 @@ class Symbol
             UnknownUse
         };
 
-        Symbol(std::string name, Type type, Use use, std::string value);
+        Symbol(std::string name, Type type, Use use, std::string value, int scope = 0);
         ~Symbol();
 
         /**********************************************************************
@@ -99,6 +99,12 @@ class Symbol
         *		 Entry:	None.
         *
         *		  Exit:	A string representing a value.
+        *
+        *      Purpose: Returns the integer value of the symbol scope.
+        *
+        *		 Entry:	None.
+        *
+        *		  Exit:	An integer representing symbol scope.
         ***********************************************************************/
 
         std::string getName() const;
@@ -107,6 +113,7 @@ class Symbol
         Use getUse() const;
         void setUse(Use inUse);
         std::string getValue() const;
+        int getScope();
 
     private:
 
@@ -121,5 +128,8 @@ class Symbol
 
         // A value representation if needed, for constants mostly
         std::string _value;
+
+        // Scope of symbol
+        int _scope;
 
 };

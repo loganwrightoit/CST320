@@ -79,7 +79,6 @@
   <ItemGroup>
     <ClCompile Include="LL1_TableParser.cpp" />
     <ClCompile Include="Parser.cpp" />
-    <ClCompile Include="Preprocessor.cpp" />
     <ClCompile Include="StateMachine.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Symbol.cpp" />
@@ -90,7 +89,6 @@
   <ItemGroup>
     <ClInclude Include="LL1_TableParser.h" />
     <ClInclude Include="Parser.h" />
-    <ClInclude Include="Preprocessor.h" />
     <ClInclude Include="StateMachine.h" />
     <ClInclude Include="Symbol.h" />
     <ClInclude Include="SymbolTable.h" />

@@ -11,7 +11,7 @@
 * Input:
 *   None.
 *
-* Output:
+* _output:
 *   None.
 ************************************************************/
 
@@ -19,12 +19,16 @@
 #include <iostream>
 #include <iomanip>
 #include <fstream>
+#include <algorithm>
+
+#define NOMINMAX
 
 using namespace std;
 
 Parser::Parser()
 {
-    definition = false;
+    _definition = false;
+    _scope = 0;
 }
 
 Parser::~Parser()
@@ -33,56 +37,71 @@ Parser::~Parser()
 
 void Parser::expected(char* expected)
 {
-    cout << "Syntax error at line " << token->line() << " position " << token->pos() << ", expected '" << expected << "'" << endl;
+    cout << "Syntax error at line " << _token->line() << " position " << _token->pos() << ", expected '" << expected << "'" << endl;
     exit(1);
 }
 
 void Parser::error(char* error)
 {
-    cout << "Syntax error at line " << token->line() << " position " << token->pos() << ", reason '" << error << "'" << endl;
+    cout << "Syntax error at line " << _token->line() << " position " << _token->pos() << ", reason '" << error << "'" << endl;
     exit(1);
 }
 
 void Parser::addSymbol(Symbol::Use use)
 {
-    auto current = token - 1;
+    auto current = _token - 1;
 
     // Symbol must be declared before use
-    if (!definition && lastType == Symbol::UnknownType)
+    if (!_definition && _lastType == Symbol::UnknownType)
     {
-        if (symbolTable.find(current->value()) == nullptr)
+        if (!_symbolTable.contains(current->value()))
         {
             error("Symbol Undefined");
         }
     }
     else
     {
-        // If symbol exists, skip
-        auto result = symbolTable.find(current->value());
-        if (result == nullptr)
+        // Check scope of all symbols with same name in table
+        // If current scope is lower than symbol scope, it can't be used
+        auto result = _symbolTable.find(current->value());
+        if (result != NULL) // Grabs vector all symbols in table with name (differentiated by scope)
         {
-            cout << "Adding symbol: " << current->value().c_str() << endl;
-            symbolTable.add(Symbol(current->value().c_str(), lastType, use, ""));
+            int minScope = 0;
+            auto iter = result->begin();
+            while (iter != result->end()) // Check each symbol for scope that will allow it's use
+            {
+                // Determine lowest scope available for symbol use
+                minScope = std::min(_scope, iter->getScope());
+                ++iter;
+            }
+
+            // Check if lowest scope is less than or equal to current scope
+            // If so, it can be used
+            if (minScope <= _scope)
+            {
+                error("Symbol Undefined (Out-of-Scope)");
+            }
         }
-        else
+
+        if (!_symbolTable.add(Symbol(current->value().c_str(), _lastType, use, "", _scope)))
         {
             error("Symbol Redefinition");
         }
     }
 
-    lastType = Symbol::UnknownType;
+    _lastType = Symbol::UnknownType;
 }
 
 bool Parser::equals(Tokenizer::TokenType type)
 {
-    if (type == token->type())
+    if (type == _token->type())
     {
-        if ((token + 1) == end)
+        if ((_token + 1) == _end)
         {
             return true;
         }
 
-        ++token;
+        ++_token;
         return true;
     }
 
@@ -91,40 +110,50 @@ bool Parser::equals(Tokenizer::TokenType type)
 
 bool Parser::equals(char* input)
 {
-    if (input == token->value())
+    if (input == _token->value())
     {
-        if ((token + 1) == end)
+        if ((_token + 1) == _end)
         {
             return true;
         }
 
-        ++token;
+        // Adjust _scope for bracketed code blocks
+        if (input == "{")
+        {
+            ++_scope;
+        }
+        else if (input == "}")
+        {
+            --_scope;
+        }
+
+        ++_token;
         return true;
     }
 
     return false;
 }
 
-bool Parser::parse(std::vector<Tokenizer::Token> tokens)
+bool Parser::parse(std::vector<Tokenizer::Token> _tokens)
 {
-    token = tokens.begin();
-    end = tokens.end();
+    _token = _tokens.begin();
+    _end = _tokens.end();
 
     // Assume int main() { COMPOUND_STMT } comes first
-    if (token == end) { return false; }
+    if (_token == _end) { return false; }
 
     bool result = function(0);
 
     // Print symbol table
-    symbolTable.print();
+    _symbolTable.print();
 
     // Save parse tree to file
     std::ofstream outfile;
     outfile.open("parseTree.txt", std::fstream::out);
     if (outfile.is_open())
     {
-        auto iter = output.begin();
-        while (iter != output.end())
+        auto iter = _output.begin();
+        while (iter != _output.end())
         {
             // Indent using first param
             for (int count = 0; count < iter->first; ++count)
@@ -135,7 +164,7 @@ bool Parser::parse(std::vector<Tokenizer::Token> tokens)
             // Write argument
             outfile.write(iter->second.c_str(), iter->second.size());
 
-            // End line
+            // _end line
             outfile.write("\n", 1);
                 
             ++iter;
@@ -147,39 +176,39 @@ bool Parser::parse(std::vector<Tokenizer::Token> tokens)
 
 void Parser::addBranch(int level, std::string inStr)
 {
-    output.push_back(std::make_pair(level, inStr));
+    _output.push_back(std::make_pair(level, inStr));
 }
 
 void Parser::popBranch()
 {
-    output.pop_back();
+    _output.pop_back();
 }
 
 // FUNCTION → TYPE Identifier ( ARG_LIST ) COMPOUND_STMT
 bool Parser::function(int level)
 {
-    if (token == end) { return false; }
-    auto temp = token;
+    if (_token == _end) { return false; }
+    auto temp = _token;
 
     addBranch(level++, "<FUNCTION>");
     if (type(level))
     {
-        if (token == end) { return false; }
+        if (_token == _end) { return false; }
         if (equals(Tokenizer::Identifier))
         {
             addBranch(level, "<Identifier>");
-            addBranch(level + 1, (token - 1)->value());
+            addBranch(level + 1, (_token - 1)->value());
             addSymbol(Symbol::FunctionName);
-            if (token == end) { return false; }
+            if (_token == _end) { return false; }
             if (equals("("))
             {
-                if (token == end) { return false; }
+                if (_token == _end) { return false; }
                 if (arg_list(level))
                 {
-                    if (token == end) { return false; }
+                    if (_token == _end) { return false; }
                     if (equals(")"))
                     {
-                        if (token == end) { return false; }
+                        if (_token == _end) { return false; }
                         if (compound_stmt(level))
                         {
                             return true;
@@ -194,23 +223,23 @@ bool Parser::function(int level)
         popBranch();
     }
     
-    token = temp;
+    _token = temp;
     return false;
 }
 
 // ARG_LIST → ARG ARG_LIST2 | λ
 bool Parser::arg_list(int level)
 {
-    if (token == end)
+    if (_token == _end)
     {
         return true;
     }
-    auto temp = token;
+    auto temp = _token;
     
     addBranch(level++, "<ARGUMENT LIST>");
     if (arg(level))
     {
-        if (token == end) { return false; }
+        if (_token == _end) { return false; }
         if (arg_list2(level))
         {
             return true;
@@ -221,25 +250,25 @@ bool Parser::arg_list(int level)
         popBranch();
     }
 
-    token = temp;
+    _token = temp;
     return true;
 }
 
 // ARG_LIST2 → , ARG ARG_LIST2 | λ
 bool Parser::arg_list2(int level)
 {
-    if (token == end)
+    if (_token == _end)
     {
         return true;
     }
-    auto temp = token;
+    auto temp = _token;
     
     if (equals(","))
     {
-        if (token == end) { return false; }
+        if (_token == _end) { return false; }
         if (arg(level))
         {
-            if (token == end) { return false; }
+            if (_token == _end) { return false; }
             if (arg_list2(level))
             {
                 return true;
@@ -247,24 +276,24 @@ bool Parser::arg_list2(int level)
         }
     }
 
-    token = temp;
+    _token = temp;
     return true; // λ
 }
 
 // ARG → TYPE Identifier
 bool Parser::arg(int level)
 {
-    if (token == end) { return false; }
-    auto temp = token;
+    if (_token == _end) { return false; }
+    auto temp = _token;
 
     addBranch(level++, "<ARGUMENT>");
     if (type(level))
     {
-        if (token == end) { return false; }
+        if (_token == _end) { return false; }
         if (equals(Tokenizer::Identifier))
         {
             addBranch(level, "<Identifier>");
-            addBranch(level + 1, (token - 1)->value());
+            addBranch(level + 1, (_token - 1)->value());
             addSymbol(Symbol::VariableName);
             return true;
         }
@@ -278,23 +307,23 @@ bool Parser::arg(int level)
         popBranch();
     }
 
-    token = temp;
+    _token = temp;
     return false;
 }
 
 // DECLARATION → TYPE IDENT_LIST ;
 bool Parser::declaration(int level)
 {
-    if (token == end) { return false; }
-    auto temp = token;
+    if (_token == _end) { return false; }
+    auto temp = _token;
 
     addBranch(level++, "<DECLARATION>");
     if (type(level))
     {
-        if (token == end) { return false; }
+        if (_token == _end) { return false; }
         if (ident_list(level))
         {
-            if (token == end) { return false; }
+            if (_token == _end) { return false; }
             if (equals(";"))
             {
                 return true;
@@ -310,38 +339,38 @@ bool Parser::declaration(int level)
         popBranch();
     }
 
-    token = temp;
+    _token = temp;
     return false;
 }
 
 // TYPE → int | float | bool | string
 bool Parser::type(int level)
 {
-    if (token == end) { return false; }
-    auto temp = token;
+    if (_token == _end) { return false; }
+    auto temp = _token;
 
     addBranch(level++, "<TYPE>");
     if (equals("int"))
     {
-        lastType = Symbol::Integer;
+        _lastType = Symbol::Integer;
         addBranch(level, "Integer");
         return true;
     }
     else if (equals("float"))
     {
-        lastType = Symbol::Float;
+        _lastType = Symbol::Float;
         addBranch(level, "Float");
         return true;
     }
     else if (equals("bool"))
     {
-        lastType = Symbol::Bool;
+        _lastType = Symbol::Bool;
         addBranch(level, "Boolean");
         return true;
     }
     else if (equals("string"))
     {
-        lastType = Symbol::String;
+        _lastType = Symbol::String;
         addBranch(level, "String");
         return true;
     }
@@ -350,18 +379,18 @@ bool Parser::type(int level)
         popBranch();
     }
     
-    token = temp;
+    _token = temp;
     return false;
 }
 
 // IDENT_LIST → Identifier IDENT_LIST2
 bool Parser::ident_list(int level)
 {
-    if (token == end) { return false; }
-    auto temp = token;
+    if (_token == _end) { return false; }
+    auto temp = _token;
 
     // Change state for defining identifiers
-    definition = true;
+    _definition = true;
 
     addBranch(level++, "<IDENTIFIER LIST>");
     if (equals(Tokenizer::Identifier))
@@ -369,10 +398,10 @@ bool Parser::ident_list(int level)
 
         // Add identifier and value to symbol table
         addBranch(level, "<Identifier>");
-        addBranch(level + 1, (token - 1)->value());
+        addBranch(level + 1, (_token - 1)->value());
         addSymbol(Symbol::VariableName);
 
-        if (token == end) { return false; }
+        if (_token == _end) { return false; }
         if (ident_list2(level))
         {
             return true;
@@ -383,25 +412,25 @@ bool Parser::ident_list(int level)
         popBranch();
     }
 
-    token = temp;
+    _token = temp;
     return false;
 }
 
 // IDENT_LIST2 → ( EXPRESSION ) IDENT_LIST3 | = EXPRESSION IDENT_LIST3 | IDENT_LIST3
 bool Parser::ident_list2(int level)
 {
-    if (token == end) { return false; }
-    auto temp = token;
+    if (_token == _end) { return false; }
+    auto temp = _token;
 
     if (equals("("))
     {
-        if (token == end) { return false; }
+        if (_token == _end) { return false; }
         if (expression(level))
         {
-            if (token == end) { return false; }
+            if (_token == _end) { return false; }
             if (equals(")"))
             {
-                if (token == end) { return false; }
+                if (_token == _end) { return false; }
                 if (ident_list3(level))
                 {
                     return true;
@@ -411,10 +440,10 @@ bool Parser::ident_list2(int level)
     }
     else if (equals("="))
     {
-        if (token == end) { return false; }
+        if (_token == _end) { return false; }
         if (expression(level))
         {
-            if (token == end) { return false; }
+            if (_token == _end) { return false; }
             if (ident_list3(level))
             {
                 return true;
@@ -426,38 +455,38 @@ bool Parser::ident_list2(int level)
         return true;
     }
 
-    token = temp;
+    _token = temp;
     return false;
 }
 
 // IDENT_LIST3 → , IDENT_LIST | λ
 bool Parser::ident_list3(int level)
 {
-    if (token == end)
+    if (_token == _end)
     {
         return true;
     }
-    auto temp = token;
+    auto temp = _token;
 
     if (equals(","))
     {
-        if (token == end) { return false; }
+        if (_token == _end) { return false; }
         if (ident_list(level))
         {
             return true;
         }
     }
 
-    definition = false;
-    token = temp;
+    _definition = false;
+    _token = temp;
     return true; // λ
 }
 
 // STATEMENT → FOR_STMT | WHILE_STMT | EXPRESSION ; | STREAM_STMT ; | IF_STMT | COMPOUND_STMT | DECLARATION | ;
 bool Parser::statement(int level)
 {
-    if (token == end) { return false; }
-    auto temp = token;
+    if (_token == _end) { return false; }
+    auto temp = _token;
 
     addBranch(level++, "<STATEMENT>");
     if (for_stmt(level))
@@ -470,7 +499,7 @@ bool Parser::statement(int level)
     }
     else if (expression(level))
     {
-        if (token == end) { return false; }
+        if (_token == _end) { return false; }
         if (equals(";"))
         {
             return true;
@@ -482,7 +511,7 @@ bool Parser::statement(int level)
     }
     else if (stream_stmt(level))
     {
-        if (token == end) { return false; }
+        if (_token == _end) { return false; }
         if (equals(";"))
         {
             return true;
@@ -513,37 +542,37 @@ bool Parser::statement(int level)
         popBranch();
     }
 
-    token = temp;
+    _token = temp;
     return false;
 }
 
 // FOR_STMT → for ( DECLARATION OPT_EXPR ; OPT_EXPR ) STATEMENT
 bool Parser::for_stmt(int level)
 {
-    if (token == end) { return false; }
-    auto temp = token;
+    if (_token == _end) { return false; }
+    auto temp = _token;
 
     addBranch(level++, "<FOR STATEMENT>");
     if (equals("for"))
     {
-        if (token == end) { return false; }
+        if (_token == _end) { return false; }
         if (equals("("))
         {
-            if (token == end) { return false; }
+            if (_token == _end) { return false; }
             if (declaration(level))
             {
                 if (opt_expr(level))
                 {
-                    if (token == end) { return false; }
+                    if (_token == _end) { return false; }
                     if (equals(";"))
                     {
-                        if (token == end) { return false; }
+                        if (_token == _end) { return false; }
                         if (opt_expr(level))
                         {
-                            if (token == end) { return false; }
+                            if (_token == _end) { return false; }
                             if (equals(")"))
                             {
-                                if (token == end) { return false; }
+                                if (_token == _end) { return false; }
                                 if (statement(level))
                                 {
                                     return true;
@@ -572,18 +601,18 @@ bool Parser::for_stmt(int level)
         popBranch();
     }
 
-    token = temp;
+    _token = temp;
     return false;
 }
 
 // OPT_EXPR → EXPRESSION | λ
 bool Parser::opt_expr(int level)
 {
-    if (token == end)
+    if (_token == _end)
     {
         return true;
     }
-    auto temp = token;
+    auto temp = _token;
 
     addBranch(level++, "<OPTIONAL EXPRESSION>");
     if (expression(level))
@@ -595,29 +624,29 @@ bool Parser::opt_expr(int level)
         popBranch();
     }
 
-    token = temp;
+    _token = temp;
     return true; // λ
 }
 
 // WHILE_STMT → while ( EXPRESSION ) STATEMENT
 bool Parser::while_stmt(int level)
 {
-    if (token == end) { return false; }
-    auto temp = token;
+    if (_token == _end) { return false; }
+    auto temp = _token;
 
     addBranch(level++, "<WHILE STATEMENT>");
     if (equals("while"))
     {
-        if (token == end) { return false; }
+        if (_token == _end) { return false; }
         if (equals("("))
         {
-            if (token == end) { return false; }
+            if (_token == _end) { return false; }
             if (expression(level))
             {
-                if (token == end) { return false; }
+                if (_token == _end) { return false; }
                 if (equals(")"))
                 {
-                    if (token == end) { return false; }
+                    if (_token == _end) { return false; }
                     if (statement(level))
                     {
                         return true;
@@ -639,32 +668,32 @@ bool Parser::while_stmt(int level)
         popBranch();
     }
 
-    token = temp;
+    _token = temp;
     return false;
 }
 
 // IF_STMT → if ( EXPRESSION ) STATEMENT ELSEPART
 bool Parser::if_stmt(int level)
 {
-    if (token == end) { return false; }
-    auto temp = token;
+    if (_token == _end) { return false; }
+    auto temp = _token;
 
     addBranch(level++, "<IF STATEMENT>");
     if (equals("if"))
     {
-        if (token == end) { return false; }
+        if (_token == _end) { return false; }
         if (equals("("))
         {
-            if (token == end) { return false; }
+            if (_token == _end) { return false; }
             if (expression(level))
             {
-                if (token == end) { return false; }
+                if (_token == _end) { return false; }
                 if (equals(")"))
                 {
-                    if (token == end) { return false; }
+                    if (_token == _end) { return false; }
                     if (statement(level))
                     {
-                        if (token == end) { return false; }
+                        if (_token == _end) { return false; }
                         if (elsepart(level))
                         {
                             return true;
@@ -687,23 +716,23 @@ bool Parser::if_stmt(int level)
         popBranch();
     }
 
-    token = temp;
+    _token = temp;
     return false;
 }
 
 // ELSEPART → else STATEMENT | λ
 bool Parser::elsepart(int level)
 {
-    if (token == end)
+    if (_token == _end)
     {
         return true;
     }
-    auto temp = token;
+    auto temp = _token;
 
     addBranch(level++, "<ELSE STATEMENT>");
     if (equals("else"))
     {
-        if (token == end) { return false; }
+        if (_token == _end) { return false; }
         if (statement(level))
         {
             return true;
@@ -714,23 +743,23 @@ bool Parser::elsepart(int level)
         popBranch();
     }
 
-    token = temp;
+    _token = temp;
     return true; // λ
 }
 
 // COMPOUND_STMT → { STMT_LIST }
 bool Parser::compound_stmt(int level)
 {
-    if (token == end) { return false; }
-    auto temp = token;
+    if (_token == _end) { return false; }
+    auto temp = _token;
 
     addBranch(level++, "<COMPOUND STATEMENT>");
     if (equals("{"))
     {
-        if (token == end) { return false; }
+        if (_token == _end) { return false; }
         if (stmt_list(level))
         {
-            if (token == end) { return false; }
+            if (_token == _end) { return false; }
             if (equals("}"))
             {
                 return true;
@@ -746,23 +775,23 @@ bool Parser::compound_stmt(int level)
         popBranch();
     }
 
-    token = temp;
+    _token = temp;
     return false;
 }
 
 // STMT_LIST → STATEMENT STMT_LIST | λ
 bool Parser::stmt_list(int level)
 {
-    if (token == end)
+    if (_token == _end)
     {
         return true;
     }
-    auto temp = token;
+    auto temp = _token;
 
     addBranch(level++, "<STATEMENT LIST>");
     if (statement(level))
     {
-        if (token == end) { return false; }
+        if (_token == _end) { return false; }
         if (stmt_list(level - 1))
         {
             return true;
@@ -773,26 +802,26 @@ bool Parser::stmt_list(int level)
         popBranch();
     }
 
-    token = temp;
+    _token = temp;
     return true; // λ
 }
 
 // EXPRESSION → Identifier = EXPRESSION | RVALUE
 bool Parser::expression(int level)
 {
-    if (token == end) { return false; }
-    auto temp = token;
+    if (_token == _end) { return false; }
+    auto temp = _token;
 
     addBranch(level++, "<EXPRESSION>");
     if (equals(Tokenizer::Identifier))
     {
         addBranch(level, "<Identifier>");
-        addBranch(level + 1, (token - 1)->value());
+        addBranch(level + 1, (_token - 1)->value());
         addSymbol(Symbol::VariableName);
-        if (token == end) { return false; }
+        if (_token == _end) { return false; }
         if (equals("="))
         {
-            if (token == end) { return false; }
+            if (_token == _end) { return false; }
             if (expression(level))
             {
                 return true;
@@ -805,8 +834,8 @@ bool Parser::expression(int level)
         popBranch();
     }
 
-    // Reset token since I can't remove the unit production from RVALUE
-    token = temp;
+    // Reset _token since I can't remove the unit production from RVALUE
+    _token = temp;
 
     addBranch(level++, "<EXPRESSION>");
     if (rvalue(level))
@@ -818,26 +847,26 @@ bool Parser::expression(int level)
         popBranch();
     }
 
-    token = temp;
+    _token = temp;
     return false;
 }
 
 // STREAM_STMT → cout << EXPRESSION OSTREAM_LIST | cin >> Identifier
 bool Parser::stream_stmt(int level)
 {
-    if (token == end) { return false; }
-    auto temp = token;
+    if (_token == _end) { return false; }
+    auto temp = _token;
 
     addBranch(level++, "<STREAM STATEMENT>");
     if (equals("cout"))
     {
-        if (token == end) { return false; }
+        if (_token == _end) { return false; }
         if (equals("<<"))
         {
-            if (token == end) { return false; }
+            if (_token == _end) { return false; }
             if (expression(level))
             {
-                if (token == end) { return false; }
+                if (_token == _end) { return false; }
                 if (ostream_list(level))
                 {
                     return true;
@@ -847,10 +876,10 @@ bool Parser::stream_stmt(int level)
     }
     else if (equals("cin"))
     {
-        if (token == end) { return false; }
+        if (_token == _end) { return false; }
         if (equals(">>"))
         {
-            if (token == end) { return false; }
+            if (_token == _end) { return false; }
             if (equals(Tokenizer::Identifier))
             {
                 return true;
@@ -862,27 +891,27 @@ bool Parser::stream_stmt(int level)
         popBranch();
     }
 
-    token = temp;
+    _token = temp;
     return false;
 }
 
 // OSTREAM_LIST → << EXPRESSION OSTREAM_LIST | λ
 bool Parser::ostream_list(int level)
 {
-    if (token == end)
+    if (_token == _end)
     {
         return true;
     }
-    auto temp = token;
+    auto temp = _token;
 
     // Code here
     addBranch(level++, "<OSTREAM LIST>");
     if (equals("<<"))
     {
-        if (token == end) { return false; }
+        if (_token == _end) { return false; }
         if (expression(level))
         {
-            if (token == end) { return false; }
+            if (_token == _end) { return false; }
             if (ostream_list(level))
             {
                 return true;
@@ -894,20 +923,20 @@ bool Parser::ostream_list(int level)
         popBranch();
     }
 
-    token = temp;
+    _token = temp;
     return true; // λ
 }
 
 // RVALUE → MAG RVALUE2
 bool Parser::rvalue(int level)
 {
-    if (token == end) { return false; }
-    auto temp = token;
+    if (_token == _end) { return false; }
+    auto temp = _token;
 
     addBranch(level++, "<RVALUE>");
     if (mag(level))
     {
-        if (token == end) { return false; }
+        if (_token == _end) { return false; }
         if (rvalue2(level))
         {
             return true;
@@ -918,25 +947,25 @@ bool Parser::rvalue(int level)
         popBranch();
     }
 
-    token = temp;
+    _token = temp;
     return false;
 }
 
 // RVALUE2 → COMPARE MAG RVALUE2 | λ
 bool Parser::rvalue2(int level)
 {
-    if (token == end)
+    if (_token == _end)
     {
         return true;
     }
-    auto temp = token;
+    auto temp = _token;
 
     if (compare(level))
     {
-        if (token == end) { return false; }
+        if (_token == _end) { return false; }
         if (mag(level))
         {
-            if (token == end) { return false; }
+            if (_token == _end) { return false; }
             if (rvalue2(level))
             {
                 return true;
@@ -944,15 +973,15 @@ bool Parser::rvalue2(int level)
         }
     }
 
-    token = temp;
+    _token = temp;
     return true; // λ
 }
 
 // COMPARE → == | < | > | <= | >= | !=
 bool Parser::compare(int level)
 {
-    if (token == end) { return false; }
-    auto temp = token;
+    if (_token == _end) { return false; }
+    auto temp = _token;
 
     addBranch(level++, "<COMPARE>");
     if (equals("=="))
@@ -990,20 +1019,20 @@ bool Parser::compare(int level)
         popBranch();
     }
 
-    token = temp;
+    _token = temp;
     return false;
 }
 
 // MAG → TERM MAG2
 bool Parser::mag(int level)
 {
-    if (token == end) { return false; }
-    auto temp = token;
+    if (_token == _end) { return false; }
+    auto temp = _token;
 
     addBranch(level++, "<MAG>");
     if (term(level))
     {
-        if (token == end) { return false; }
+        if (_token == _end) { return false; }
         if (mag2(level))
         {
             return true;
@@ -1014,25 +1043,25 @@ bool Parser::mag(int level)
         popBranch();
     }
 
-    token = temp;
+    _token = temp;
     return false;
 }
 
 // MAG2 → + TERM MAG2 | - TERM MAG2 | λ
 bool Parser::mag2(int level)
 {
-    if (token == end)
+    if (_token == _end)
     {
         return true;
     }
-    auto temp = token;
+    auto temp = _token;
 
     if (equals("+"))
     {
-        if (token == end) { return false; }
+        if (_token == _end) { return false; }
         if (term(level))
         {
-            if (token == end) { return false; }
+            if (_token == _end) { return false; }
             if (mag2(level))
             {
                 return true;
@@ -1041,10 +1070,10 @@ bool Parser::mag2(int level)
     }
     else if (equals("-"))
     {
-        if (token == end) { return false; }
+        if (_token == _end) { return false; }
         if (term(level))
         {
-            if (token == end) { return false; }
+            if (_token == _end) { return false; }
             if (mag2(level))
             {
                 return true;
@@ -1052,20 +1081,20 @@ bool Parser::mag2(int level)
         }
     }
 
-    token = temp;
+    _token = temp;
     return true; // λ
 }
 
 // TERM → FACTOR TERM2
 bool Parser::term(int level)
 {
-    if (token == end) { return false; }
-    auto temp = token;
+    if (_token == _end) { return false; }
+    auto temp = _token;
 
     addBranch(level++, "<TERM>");
     if (factor(level))
     {
-        if (token == end) { return false; }
+        if (_token == _end) { return false; }
         if (term2(level))
         {
             return true;
@@ -1076,25 +1105,25 @@ bool Parser::term(int level)
         popBranch();
     }
 
-    token = temp;
+    _token = temp;
     return false;
 }
 
 // TERM2 → * FACTOR TERM2 | / FACTOR TERM2 | % FACTOR TERM2 | λ
 bool Parser::term2(int level)
 {
-    if (token == end)
+    if (_token == _end)
     {
         return true;
     }
-    auto temp = token;
+    auto temp = _token;
 
     if (equals("*"))
     {
-        if (token == end) { return false; }
+        if (_token == _end) { return false; }
         if (factor(level))
         {
-            if (token == end) { return false; }
+            if (_token == _end) { return false; }
             if (term2(level))
             {
                 return true;
@@ -1103,10 +1132,10 @@ bool Parser::term2(int level)
     }
     else if (equals("/"))
     {
-        if (token == end) { return false; }
+        if (_token == _end) { return false; }
         if (factor(level))
         {
-            if (token == end) { return false; }
+            if (_token == _end) { return false; }
             if (term2(level))
             {
                 return true;
@@ -1115,10 +1144,10 @@ bool Parser::term2(int level)
     }
     else if (equals("%"))
     {
-        if (token == end) { return false; }
+        if (_token == _end) { return false; }
         if (factor(level))
         {
-            if (token == end) { return false; }
+            if (_token == _end) { return false; }
             if (term2(level))
             {
                 return true;
@@ -1126,23 +1155,23 @@ bool Parser::term2(int level)
         }
     }
     
-    token = temp;
+    _token = temp;
     return true; // λ
 }
 
 // FACTOR → ( EXPRESSION ) | - FACTOR | + FACTOR | Identifier FACTOR2 | VALUE
 bool Parser::factor(int level)
 {
-    if (token == end) { return false; }
-    auto temp = token;
+    if (_token == _end) { return false; }
+    auto temp = _token;
 
     addBranch(level++, "<FACTOR>");
     if (equals("("))
     {
-        if (token == end) { return false; }
+        if (_token == _end) { return false; }
         if (expression(level))
         {
-            if (token == end) { return false; }
+            if (_token == _end) { return false; }
             if (equals(")"))
             {
                 return true;
@@ -1151,7 +1180,7 @@ bool Parser::factor(int level)
     }
     else if (equals("-"))
     {
-        if (token == end) { return false; }
+        if (_token == _end) { return false; }
         if (factor(level))
         {
             return true;
@@ -1159,7 +1188,7 @@ bool Parser::factor(int level)
     }
     else if (equals("+"))
     {
-        if (token == end) { return false; }
+        if (_token == _end) { return false; }
         if (factor(level))
         {
             return true;
@@ -1168,9 +1197,9 @@ bool Parser::factor(int level)
     else if (equals(Tokenizer::Identifier))
     {
         addBranch(level, "<Identifier>");
-        addBranch(level + 1, (token - 1)->value());
+        addBranch(level + 1, (_token - 1)->value());
 
-        if (token == end) { return false; }
+        if (_token == _end) { return false; }
         if (factor2(level))
         {
             return true;
@@ -1185,18 +1214,18 @@ bool Parser::factor(int level)
         popBranch();
     }
 
-    token = temp;
+    _token = temp;
     return false;
 }
 
 //FACTOR2 → ++ | -- | λ
 bool Parser::factor2(int level)
 {
-    if (token == end)
+    if (_token == _end)
     {
         return true;
     }
-    auto temp = token;
+    auto temp = _token;
 
     if (equals("++"))
     {
@@ -1207,33 +1236,33 @@ bool Parser::factor2(int level)
         return true;
     }
     
-    token = temp;
+    _token = temp;
     return true; // λ
 }
 
 // VALUE → Integer | Float | String | Boolean
 bool Parser::value(int level)
 {
-    if (token == end) { return false; }
-    auto temp = token;
+    if (_token == _end) { return false; }
+    auto temp = _token;
 
     addBranch(level++, "<VALUE>");
     if (equals(Tokenizer::Integer))
     {
         addBranch(level, "<Integer>");
-        addBranch(level + 1, (token - 1)->value());
+        addBranch(level + 1, (_token - 1)->value());
         return true;
     }
     else if (equals(Tokenizer::Float))
     {
         addBranch(level, "<Float>");
-        addBranch(level + 1, (token - 1)->value());
+        addBranch(level + 1, (_token - 1)->value());
         return true;
     }
     else if (equals(Tokenizer::String))
     {
         std::string str("\"");
-        str.append((token - 1)->value());
+        str.append((_token - 1)->value());
         str.append("\"");
 
         addBranch(level, "<String>");
@@ -1243,7 +1272,7 @@ bool Parser::value(int level)
     else if (equals(Tokenizer::Boolean))
     {
         addBranch(level, "<Boolean>");
-        addBranch(level + 1, (token - 1)->value());
+        addBranch(level + 1, (_token - 1)->value());
         return true;
     }
     else
@@ -1251,6 +1280,6 @@ bool Parser::value(int level)
         popBranch();
     }
 
-    token = temp;
+    _token = temp;
     return false;
 }

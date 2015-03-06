@@ -23,6 +23,7 @@
 #include "Symbol.h"
 
 #include <map>
+#include <vector>
 
 class SymbolTable
 {
@@ -93,15 +94,15 @@ class SymbolTable
 
         bool add(Symbol symbol);
         bool contains(std::string name);
-        Symbol* find(std::string name);
+        std::vector<Symbol>* find(std::string name);
         bool remove(std::string name);
         int size();
         void print();
 
     private:
 
-        // The symbol table
-        std::map<std::string, Symbol> _table;
+        // The symbol table that holds vectors of defined symbols (differentiated by scope)
+        std::map<std::string, std::vector<Symbol>> _table;
 
 };
 

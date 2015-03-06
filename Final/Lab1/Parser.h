@@ -149,26 +149,29 @@ class Parser
         // Adds symbol to symbol table
         void addSymbol(Symbol::Use use);
 
-        // Stores current position in tokens vector
-        std::vector<Tokenizer::Token>::iterator token, end;
-
-        // Stores last type for IDENT_LIST declarations
-        Symbol::Type lastType;
-
-        // Stores symbols
-        SymbolTable symbolTable;
-
-        // Stores output for parser tree in pair <indent, string>
-        std::vector<std::pair<int, std::string>> output;
-
         // Adds parse branch for output later
         void addBranch(int level, std::string inStr);
 
         // Removes last branch from parse tree
         void popBranch();
 
+        // Stores current position in tokens vector
+        std::vector<Tokenizer::Token>::iterator _token, _end;
+
+        // Stores output for parser tree in pair <indent, string>
+        std::vector<std::pair<int, std::string>> _output;
+
+        // Stores last type for IDENT_LIST declarations
+        Symbol::Type _lastType;
+
+        // Stores symbols
+        SymbolTable _symbolTable;
+
         // State used when defining identifiers
-        bool definition;
+        bool _definition;
+
+        // The current scope at parsing level
+        int _scope;
 
 };
 

@@ -44,13 +44,18 @@ SymbolTable::~SymbolTable()
 ***************************************************************/
 void SymbolTable::print()
 {
-    cout << '\n' << setw(20) << left << "Symbol Name" << "Symbol Use" << endl;
-    cout << setfill('-') << setw(40) << "-" << setfill(' ') << endl;
+    cout << '\n' << setw(20) << left << "Symbol Name" << setw(20) << "Symbol Use" << setw(20) << "Scope" << endl;
+    cout << setfill('-') << setw(60) << "-" << setfill(' ') << endl;
     
     auto iter = _table.begin();
     while (iter != _table.end())
     {
-        cout << setw(20) << iter->second.getName() << (iter->second.getUse() == Symbol::FunctionName ? "FunctionName" : "VariableName") << endl;
+        auto iter2 = iter->second.begin();
+        while (iter2 != iter->second.end())
+        {
+            cout << setw(20) << iter2->getName() << setw(20) << (iter2->getUse() == Symbol::FunctionName ? "FunctionName" : "VariableName") << setw(20) << iter2->getScope() << endl;
+            ++iter2;
+        }
         ++iter;
     }
 }
@@ -67,9 +72,36 @@ void SymbolTable::print()
 ***************************************************************/
 bool SymbolTable::add(Symbol symbol)
 {
-    // Second value of pair is if element insertion was successful
-    // If element already existed in table, will return false
-    return (_table.insert(std::make_pair(symbol.getName(), symbol))).second;
+    // Check if table contains vector for symbol
+    auto result = _table.find(symbol.getName());
+    if (result != _table.end())
+    {
+        // Return false if symbol already exists at scope level
+        auto iter = result->second.begin();
+        while (iter != result->second.end())
+        {
+            if (iter->getScope() == symbol.getScope())
+            {
+                return false;
+            }
+            iter++;
+        }
+
+        // Insert symbol in vector
+        result->second.push_back(symbol);
+    }
+    else
+    {
+        // Create table entry and vector list to hold new symbol
+        std::vector<Symbol> vec;
+        vec.push_back(symbol);
+        if (!_table.insert(std::make_pair(symbol.getName(), vec)).second)
+        {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 /**************************************************************
@@ -87,24 +119,22 @@ bool SymbolTable::contains(std::string name)
 /**************************************************************
 *   Entry:  name string - the name of the symbol.
 *
-*    Exit:  Returns a symbol pointer if object was able to be
+*    Exit:  Returns a vector of symbols if object was able to be
 *           found in the symbol table.
 *
 *           Returns nullptr if symbol does not exist.
 *
 * Purpose:  Adds a new symbol to the symbol table.
 ***************************************************************/
-Symbol* SymbolTable::find(std::string name)
+std::vector<Symbol>* SymbolTable::find(std::string name)
 {
-    Symbol* symbol = nullptr;
-
     auto result = _table.find(name);
     if (result != _table.end())
     {
-        symbol = &result->second;
+        return &(result->second);
     }
 
-    return symbol;
+    return NULL;
 }
 
 /**************************************************************

@@ -19,8 +19,8 @@
 
 #include "Symbol.h"
 
-Symbol::Symbol(std::string name, Type type, Use use, std::string value) :
-    _name(name), _type(type), _use(use), _value(value) {}
+Symbol::Symbol(std::string name, Type type, Use use, std::string value, int scope) :
+    _name(name), _type(type), _use(use), _value(value), _scope(scope) {}
 
 Symbol::~Symbol()
 {
@@ -101,3 +101,15 @@ std::string Symbol::getValue() const
 {
     return _value;
 };
+
+/**************************************************************
+*   Entry:  None.
+*
+*    Exit:  An integer representing symbol scope.
+*
+* Purpose:  Returns the integer value of the symbol scope.
+***************************************************************/
+int Symbol::getScope()
+{
+    return _scope;
+}

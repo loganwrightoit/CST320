@@ -27,4 +27,6 @@ int main()
         }
         cout << whole << " " << num << " / " << den;
     }
+
+    int test = scopedVar + 1;
 }

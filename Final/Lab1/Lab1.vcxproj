@@ -77,7 +77,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="LL1_TableParser.cpp" />
     <ClCompile Include="Parser.cpp" />
     <ClCompile Include="StateMachine.cpp" />
     <ClCompile Include="Main.cpp" />
@@ -87,7 +86,6 @@
     <ClCompile Include="Tokenizer.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="LL1_TableParser.h" />
     <ClInclude Include="Parser.h" />
     <ClInclude Include="StateMachine.h" />
     <ClInclude Include="Symbol.h" />

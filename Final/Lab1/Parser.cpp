@@ -29,6 +29,11 @@ Parser::Parser()
 {
     _definition = false;
     _scope = 0;
+    int numCompoundStmts = 0;
+    int numStmts = 0;
+    int numIfStmts = 0;
+    int numWhileStmts = 0;
+    int numInOutStmts = 0;
 }
 
 Parser::~Parser()
@@ -182,9 +187,11 @@ void Parser::printSystemMetrics()
     cout << endl << setw(30) << "Program Analysis:" << endl;
     cout << setw(35) << setfill('-') << '-' << setfill(' ') << endl;
 
-    // Total number of symbols in the program
+    // Grab values from symbol table
     int numSymbols = 0;
     int totalIdentLen = 0;
+    int maxScopeLevel = 0;
+    int numFunctions = 0;
     auto table = _symbolTable.getTable();
     auto iter = table.begin();
     while (iter != table.end())
@@ -195,29 +202,43 @@ void Parser::printSystemMetrics()
         auto iter2 = iter->second.begin();
         while (iter2 != iter->second.end())
         {
+            maxScopeLevel = max(maxScopeLevel, iter2->getScope());
             totalIdentLen += iter2->getName().size();
+
+            if (iter2->getUse() == Symbol::Use::FunctionName)
+            {
+                numFunctions++;
+            }
+
             ++iter2;
         }
 
         ++iter;
     }
+
+    // Total number of symbols in the program
     cout << setw(30) << "Number of symbols" << numSymbols << endl;
 
     // Average length of identifiers in the program
     cout << setw(30) << "Avg Length of Identifiers" << totalIdentLen / numSymbols << endl;
 
     // Average number of statements for compound statements
-
+    cout << setw(30) << "Avg stmts in compound stmts" << (numStmts / numCompoundStmts) << endl;
 
     // Maximum number of scope levels for identifiers
+    cout << setw(30) << "Maximum scope level" << maxScopeLevel << endl;
 
     // Number of if statements in the program
+    cout << setw(30) << "Number of IF stmts" << numIfStmts << endl;
 
     // Number of while loops in the program
+    cout << setw(30) << "Number of WHILE stmts" << numWhileStmts << endl;
 
     // Number of input/output statements in the program
+    cout << setw(30) << "Number of Input/Output stmts" << numInOutStmts << endl;
 
     // Number of functions in the program
+    cout << setw(30) << "Number of functions" << numFunctions << endl;
 }
 
 void Parser::addBranch(int level, std::string inStr)
@@ -541,6 +562,7 @@ bool Parser::statement(int level)
     }
     else if (while_stmt(level))
     {
+        ++numWhileStmts;
         return true;
     }
     else if (expression(level))
@@ -560,6 +582,7 @@ bool Parser::statement(int level)
         if (_token == _end) { return false; }
         if (equals(";"))
         {
+            ++numInOutStmts;
             return true;
         }
         else
@@ -569,6 +592,7 @@ bool Parser::statement(int level)
     }
     else if (if_stmt(level))
     {
+        ++numIfStmts;
         return true;
     }
     else if (compound_stmt(level))
@@ -621,6 +645,7 @@ bool Parser::for_stmt(int level)
                                 if (_token == _end) { return false; }
                                 if (statement(level))
                                 {
+                                    ++numStmts;
                                     return true;
                                 }
                             }
@@ -695,6 +720,7 @@ bool Parser::while_stmt(int level)
                     if (_token == _end) { return false; }
                     if (statement(level))
                     {
+                        ++numStmts;
                         return true;
                     }
                 }
@@ -739,6 +765,7 @@ bool Parser::if_stmt(int level)
                     if (_token == _end) { return false; }
                     if (statement(level))
                     {
+                        ++numStmts;
                         if (_token == _end) { return false; }
                         if (elsepart(level))
                         {
@@ -781,6 +808,7 @@ bool Parser::elsepart(int level)
         if (_token == _end) { return false; }
         if (statement(level))
         {
+            ++numStmts;
             return true;
         }
     }
@@ -808,6 +836,7 @@ bool Parser::compound_stmt(int level)
             if (_token == _end) { return false; }
             if (equals("}"))
             {
+                ++numCompoundStmts;
                 return true;
             }
             else
@@ -837,6 +866,7 @@ bool Parser::stmt_list(int level)
     addBranch(level++, "<STATEMENT LIST>");
     if (statement(level))
     {
+        ++numStmts;
         if (_token == _end) { return false; }
         if (stmt_list(level - 1))
         {

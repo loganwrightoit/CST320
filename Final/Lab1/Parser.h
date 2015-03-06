@@ -158,6 +158,13 @@ class Parser
         // Some debug output for project
         void printSystemMetrics();
 
+        // Some values for analysis later
+        int numCompoundStmts;
+        int numStmts;
+        int numIfStmts;
+        int numWhileStmts;
+        int numInOutStmts;
+
         // Stores current position in tokens vector
         std::vector<Tokenizer::Token>::iterator _token, _end;
 

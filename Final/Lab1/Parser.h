@@ -149,6 +149,9 @@ class Parser
         // Adds symbol to symbol table
         void addSymbol(Symbol::Use use);
 
+        // Checks if symbol can be used at scope
+        void checkSymbol();
+
         // Adds parse branch for output later
         void addBranch(int level, std::string inStr);
 

@@ -1,14 +1,32 @@
-int main(float arg1)
+int main()
 {
-    int x = 3;
-    int y = 1;
-    
-    while (x < 5) { int _int = (x < 5) * 3; float _float = 1.0f; x = x + 1; }
-    for (int i = 4; i < 5; i = i + 1)
+    int num(0), den(0), whole(0);
+    cout << "Input a numerator: ";
+    cin >> num;
+    cout << "Input a denominator: ";
+    cin >> den;
+    whole = num / den;
+    int scopedVar = 0;
+    for (int loop = 1; loop < 2; loop++)
     {
-        string value = "Test";
+        if (num > 0)
+        {
+            int scopedVar = 0;
+            num = num % den;
+        }
+        else
+        {
+            if (den > 0)
+            {
+                den = den % num;
+            }
+            else
+            {
+                loop++; 
+            }
+        }
+        cout << whole << " " << num << " / " << den;
     }
 
-    if (x < 10)
-        int b = 200;
+    scopedVar = 1;
 }

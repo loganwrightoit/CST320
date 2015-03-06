@@ -56,33 +56,24 @@ void Parser::addSymbol(Symbol::Use use)
 {
     auto current = _token - 1;
 
-    // Symbol must be declared before use
-    if (!_definition && _lastType == Symbol::UnknownType)
-    {
-        if (!_symbolTable.contains(current->value()))
-        {
-            error("Symbol Undefined");
-        }
-    }
-    else
+    if (_definition)
     {
         // Check scope of all symbols with same name in table
         // If current scope is lower than symbol scope, it can't be used
         auto result = _symbolTable.find(current->value());
         if (result != NULL) // Grabs vector all symbols in table with name (differentiated by scope)
         {
-            int minScope = 0;
+            int minScope = 255;
             auto iter = result->begin();
             while (iter != result->end()) // Check each symbol for scope that will allow it's use
             {
                 // Determine lowest scope available for symbol use
-                minScope = std::min(_scope, iter->getScope());
+                minScope = std::min(minScope, iter->getScope());
                 ++iter;
             }
 
-            // Check if lowest scope is less than or equal to current scope
-            // If so, it can be used
-            if (minScope <= _scope)
+            // Check accessible scope of symbol
+            if (minScope > _scope)
             {
                 error("Symbol Undefined (Out-of-Scope)");
             }
@@ -93,8 +84,34 @@ void Parser::addSymbol(Symbol::Use use)
             error("Symbol Redefinition");
         }
     }
+}
 
-    _lastType = Symbol::UnknownType;
+void Parser::checkSymbol()
+{
+    auto current = _token - 1;
+
+    // Check that symbol exists, and scope is accessible
+    if (!_symbolTable.contains(current->value()))
+    {
+        error("Symbol Undefined");
+    }
+    else
+    {
+        // Check that symbol in table has accessible scope
+        auto list = _symbolTable.find(current->value());
+        auto iter = list->begin();
+        int minScope = 255;
+        while (iter != list->end())
+        {
+            minScope = std::min(minScope, iter->getScope());
+            ++iter;
+        }
+
+        if (minScope > _scope)
+        {
+            error("Symbol Undefined (Out-of-Scope)");
+        }
+    }
 }
 
 bool Parser::equals(Tokenizer::TokenType type)
@@ -263,9 +280,16 @@ bool Parser::function(int level)
         if (_token == _end) { return false; }
         if (equals(Tokenizer::Identifier))
         {
+            // Set definition state
+            _definition = true;
+
             addBranch(level, "<Identifier>");
             addBranch(level + 1, (_token - 1)->value());
             addSymbol(Symbol::FunctionName);
+
+            // Set definition state
+            _definition = false;
+
             if (_token == _end) { return false; }
             if (equals("("))
             {
@@ -893,7 +917,7 @@ bool Parser::expression(int level)
     {
         addBranch(level, "<Identifier>");
         addBranch(level + 1, (_token - 1)->value());
-        addSymbol(Symbol::VariableName);
+        checkSymbol();
         if (_token == _end) { return false; }
         if (equals("="))
         {
